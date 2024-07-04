@@ -1,0 +1,51 @@
+# Copyright 2024 TRAPS
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: ros2-docker
+description: Build Docker Image and push to ghcr.io
+
+inputs:
+  checkout:
+    description: First decide whether to check or not
+    required: false
+    default: true
+  path:
+    description: Package path
+    required: false
+  token:
+    description: TOKEN used to push Docker Image
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      if: ${{ inputs.checkout }}
+      uses: actions/checkout@v4
+      with:
+        path: ${{ inputs.path }}
+        token: ${{ inputs.token }}
+
+    - name: Install xmmlint
+      run: sudo apt update && sudo apt install -y libxml2-utils
+
+    - name: Push the tag if it does not exist
+      run: |
+        PACKAGE_VERSION=$(xmllint --xpath "string(/package/name)" ".package.xml")
+        if ! git tag | grep ${PACKAGE_VERSION} > /dev/null
+        then
+          git tag ${PACKAGE_VERSION}
+          git push origin ${PACKAGE_VERSION}
+        fi
