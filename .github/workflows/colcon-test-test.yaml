@@ -1,0 +1,28 @@
+name: Colcon Test test
+
+run-name: Colcon Test test:${{ github.ref_name }}(${{ github.event.head_commit.message }})
+
+on:
+  push:
+
+jobs:
+  colcon-test:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      packages: read
+
+    container:
+      image: ros:humble-ros-base
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: TRAPS-Robocup/traps_tools_ros
+          path: src/traps_tools_ros
+      
+      - name: Colcon test
+        uses: TRAPS-RoboCup/traps-github-action/colcon-test@main
+        with:
+          checkout: false

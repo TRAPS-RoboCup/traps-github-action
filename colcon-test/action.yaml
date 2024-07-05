@@ -1,0 +1,94 @@
+# Copyright 2024 TRAPS
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: colcon-test
+description: Execute colcon test
+
+inputs:
+  checkout:
+    description: First decide whether to check or not
+    required: false
+    default: true
+  workspace-dir:
+    description: ROS2 Workspace directory
+    required: false
+    default: .
+  token:
+    description: TOKEN used to push Docker Image
+    required: false
+    default: ${{ github.token }}
+  build-prefix:
+    description: Build prefix command
+    required: false
+    default: . /opt/ros/$ROS_DISTRO/setup.bash &&
+  test-prefix:
+    description: Test prefix command
+    required: false
+    default: . /opt/ros/$ROS_DISTRO/setup.bash &&
+  build-argument:
+    description: Build & Test argument
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Set repository name
+      if: ${{ inputs.checkout }}
+      id: set-repository-name
+      run: echo "name=${GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/}" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Checkout
+      if: ${{ inputs.checkout }}
+      uses: actions/checkout@v4
+      with:
+        path: ${{ inputs.workspace-dir }}/src/${{ steps.set-repository-name.outputs.name }}
+        token: ${{ inputs.token }}
+
+    - name: Apt update & upgrade
+      run: sudo apt-get update && sudo apt-get upgrade -y
+      shell: bash
+
+    - name: Install package requirements
+      run: |
+        for requirements_file in "./src/*/config/apt/requirements.txt"
+        do
+          if [ -f ./src/*/config/apt/requirements.txt ]
+          then
+            sudo xargs -a ${requirements_file} apt-get install -y
+          fi
+        done
+      shell: bash
+
+    - name: Install colcon
+      run: |
+        if ! colcon -h > /dev/null 2> /dev/null
+        then
+          apt-get update
+          apt-get install -y curl
+          curl -s https://packagecloud.io/install/repositories/dirk-thomas/colcon/script.deb.sh | sudo bash
+          apt-get install -y python3-colcon-common-extensions
+        fi
+      shell: bash
+
+    - name: Build
+      working-directory: ${{ inputs.workspace-dir }}
+      run: ${{ inputs.build-prefix }} colcon build ${{ inputs.build-argument }}
+      shell: bash
+
+    - name: Test
+      working-directory: ${{ inputs.workspace-dir }}
+      run: ${{ inputs.test-prefix }} colcon test && colcon test-result --verbose
+      shell: bash
+
