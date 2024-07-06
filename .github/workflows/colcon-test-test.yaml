@@ -23,6 +23,6 @@ jobs:
           path: src/traps_tools_ros
       
       - name: Colcon test
-        uses: TRAPS-RoboCup/traps-github-action/colcon-test@main
+        uses: ${{ github.repository }}/colcon-test@${{ github.sha }}
         with:
           checkout: false
