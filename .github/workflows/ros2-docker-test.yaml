@@ -28,6 +28,6 @@ jobs:
           path: ros2_ws/src/traps_tools_ros
       
       - name: Docker Build and Push
-        uses: miyajimad0620/traps-github-action/ros2-docker@test
+        uses: ${{ github.repository }}/ros2-docker@${{ github.sha }}
         with:
           checkout: false
