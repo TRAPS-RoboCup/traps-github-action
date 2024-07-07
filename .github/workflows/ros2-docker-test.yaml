@@ -17,6 +17,11 @@ jobs:
       PLATFORMS: linux/amd64, linux/arm64/v8
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: .traps-github-action
+
       - name: Resist repository name
         id: repository
         run: echo "name=${GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/}" >> $GITHUB_OUTPUT
@@ -28,6 +33,6 @@ jobs:
           path: ros2_ws/src/traps_tools_ros
       
       - name: Docker Build and Push
-        uses: ${{ github.repository }}/ros2-docker@${{ github.sha }}
+        uses: ./.traps-github-action/ros2-docker
         with:
           checkout: false

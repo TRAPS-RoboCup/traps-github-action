@@ -19,10 +19,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          path: .traps-github-action
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
           repository: TRAPS-Robocup/traps_tools_ros
           path: src/traps_tools_ros
       
       - name: Colcon test
-        uses: ${{ github.repository }}/colcon-test@${{ github.sha }}
+        uses: ./.traps-github-action/colcon-test
         with:
           checkout: false
