@@ -5,9 +5,6 @@ run-name: Colcon Test test:${{ github.ref_name }}(${{ github.event.head_commit.m
 on:
   push:
 
-env:
-  TARGET_ACTION: ${{ github.repository }}/colcon-test@${{ github.sha }}
-
 jobs:
   colcon-test:
     runs-on: ubuntu-22.04
@@ -26,6 +23,6 @@ jobs:
           path: src/traps_tools_ros
       
       - name: Colcon test
-        uses: ${{ env.TARGET_ACTION }}
+        uses: ${{ github.repository }}/colcon-test@${{ github.sha }}
         with:
           checkout: false
