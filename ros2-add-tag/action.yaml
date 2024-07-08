@@ -46,6 +46,6 @@ runs:
         PACKAGE_VERSION=$(xmllint --xpath "string(/package/name)" ".package.xml")
         if ! git tag | grep ${PACKAGE_VERSION} > /dev/null
         then
-          git tag ${PACKAGE_VERSION}
+          git tag -a ${PACKAGE_VERSION} -m $(git log -1 --pretty=%B)
           git push origin ${PACKAGE_VERSION}
         fi
