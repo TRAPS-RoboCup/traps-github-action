@@ -1,6 +1,6 @@
 name: Add tag
 
-run-name: Colcon Test test:${{ github.ref_name }}(${{ github.event.head_commit.message }})
+run-name: Add tag:${{ github.ref_name }}(${{ github.event.head_commit.message }})
 
 on:
   push:
