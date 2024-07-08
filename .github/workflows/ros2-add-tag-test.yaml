@@ -22,3 +22,6 @@ jobs:
 
       - name: Add tag
         uses: ./.traps-github-action/ros2-add-tag
+        with:
+          path: .traps-github-action
+
