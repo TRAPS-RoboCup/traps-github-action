@@ -45,8 +45,8 @@ runs:
     - name: Push the tag if it does not exist
       working-directory: ${{ inputs.path }}
       run: |
-        git config --local user.email $(xmllint --xpath 'string(/package/maintainer/@email)' package.xml)
-        git config --local user.email $(xmllint --xpath 'string(/package/maintainer)' package.xml)
+        git config --global user.email $(xmllint --xpath 'string(/package/maintainer/@email)' package.xml)
+        git config --global user.email $(xmllint --xpath 'string(/package/maintainer)' package.xml)
         PACKAGE_VERSION=$(xmllint --xpath "string(/package/name)" "package.xml")
         if ! git tag | grep ${PACKAGE_VERSION} > /dev/null
         then
