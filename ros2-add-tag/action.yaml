@@ -40,6 +40,7 @@ runs:
 
     - name: Install xmmlint
       run: sudo apt update && sudo apt install -y libxml2-utils
+      shell: bash
 
     - name: Push the tag if it does not exist
       run: |
@@ -49,3 +50,4 @@ runs:
           git tag -a ${PACKAGE_VERSION} -m $(git log -1 --pretty=%B)
           git push origin ${PACKAGE_VERSION}
         fi
+      shell: bash
