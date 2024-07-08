@@ -42,6 +42,16 @@ runs:
       run: sudo apt update && sudo apt install -y libxml2-utils
       shell: bash
 
+    - name: Set git user email
+      working-directory: ${{ inputs.path }}
+      run: git config --local user.email $(xmllint --xpath 'string(/package/maintainer/@email)' package.xml)
+      shell: bash
+
+    - name: Set git user name
+      working-directory: ${{ inputs.path }}
+      run: git config --local user.email $(xmllint --xpath 'string(/package/maintainer)' package.xml)
+      shell: bash
+
     - name: Push the tag if it does not exist
       working-directory: ${{ inputs.path }}
       run: |
