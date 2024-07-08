@@ -4,7 +4,7 @@ run-name: Add tag:${{ github.ref_name }}(${{ github.event.head_commit.message }}
 
 on:
   push:
-    branches:
+    # branches:
       # - 'main'
 
 jobs:
@@ -15,5 +15,10 @@ jobs:
       packages: write
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: .traps-github-action
+
       - name: Add tag
         uses: ./.traps-github-action/ros2-add-tag
