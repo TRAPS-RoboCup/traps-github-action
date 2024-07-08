@@ -33,6 +33,6 @@ jobs:
           path: ros2_ws/src/traps_tools_ros
       
       - name: Docker Build and Push
-        uses: ./.traps-github-action/ros2-docker
+        uses: ./.traps-github-action/ros2-docker-build
         with:
           checkout: false

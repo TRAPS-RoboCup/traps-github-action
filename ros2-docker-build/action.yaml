@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: ros2-docker
+name: ros2-docker-build
 description: Build Docker Image and push to ghcr.io
 
 inputs:
