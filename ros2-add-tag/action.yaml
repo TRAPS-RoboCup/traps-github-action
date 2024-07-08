@@ -43,8 +43,9 @@ runs:
       shell: bash
 
     - name: Push the tag if it does not exist
+      working-directory: ${{ inputs.path }}
       run: |
-        PACKAGE_VERSION=$(xmllint --xpath "string(/package/name)" ".package.xml")
+        PACKAGE_VERSION=$(xmllint --xpath "string(/package/name)" "package.xml")
         if ! git tag | grep ${PACKAGE_VERSION} > /dev/null
         then
           git tag -a ${PACKAGE_VERSION} -m $(git log -1 --pretty=%B)
