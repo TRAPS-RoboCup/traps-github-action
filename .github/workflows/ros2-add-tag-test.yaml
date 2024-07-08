@@ -5,7 +5,7 @@ run-name: Add tag:${{ github.ref_name }}(${{ github.event.head_commit.message }}
 on:
   push:
     branches:
-      - 'main'
+      # - 'main'
 
 jobs:
   add-tag:
