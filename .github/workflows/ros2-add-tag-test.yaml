@@ -4,6 +4,8 @@ run-name: Colcon Test test:${{ github.ref_name }}(${{ github.event.head_commit.m
 
 on:
   push:
+    branches:
+      - 'main'
 
 jobs:
   add-tag:
