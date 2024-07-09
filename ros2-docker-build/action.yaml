@@ -21,8 +21,8 @@ inputs:
     required: false
     type: boolean
     default: true
-  workspace-dir:
-    description: ROS2 Workspace directory
+  workspace-path:
+    description: Workspace path
     required: false
     default: ./ros2_ws
   platforms:
