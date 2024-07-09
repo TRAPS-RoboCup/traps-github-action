@@ -48,7 +48,7 @@ runs:
       run: |
         git config --local user.email $(xmllint --xpath 'string(/package/maintainer/@email)' package.xml)
         git config --local user.name $(xmllint --xpath 'string(/package/maintainer)' package.xml)
-        PACKAGE_VERSION=$(xmllint --xpath "string(/package/version)" "package.xml")
+        PACKAGE_VERSION=v$(xmllint --xpath "string(/package/version)" "package.xml")
         if ! git tag | grep ${PACKAGE_VERSION} > /dev/null
         then
           git tag -a ${PACKAGE_VERSION} -m "$(git log -1 --pretty=%B)"
