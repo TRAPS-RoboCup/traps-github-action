@@ -53,7 +53,7 @@ runs:
     if: ${{ fromJson(inputs.checkout) }}
     uses: actions/checkout@v4
     with:
-      path: ${{ inputs.workspace-dir }}/tmp/${{ steps.set-repository-name.outputs.name }}
+      path: ${{ inputs.workspace-dir }}/src/${{ steps.set-repository-name.outputs.name }}
   
   - name: Login to GitHub Container Registry
     uses: docker/login-action@v3
