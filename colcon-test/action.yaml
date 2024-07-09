@@ -54,7 +54,7 @@ runs:
       if: ${{ fromJson(inputs.checkout) }}
       uses: actions/checkout@v4
       with:
-        path: ${{ inputs.workspace-dir }}/src/${{ steps.set-repository-name.outputs.name }}
+        path: ${{ inputs.workspace-path }}/src/${{ steps.set-repository-name.outputs.name }}
         token: ${{ inputs.token }}
 
     - name: Apt update & upgrade
@@ -84,12 +84,12 @@ runs:
       shell: bash
 
     - name: Build
-      working-directory: ${{ inputs.workspace-dir }}
+      working-directory: ${{ inputs.workspace-path }}
       run: ${{ inputs.build-prefix }} colcon build ${{ inputs.build-argument }}
       shell: bash
 
     - name: Test
-      working-directory: ${{ inputs.workspace-dir }}
+      working-directory: ${{ inputs.workspace-path }}
       run: ${{ inputs.test-prefix }} colcon test && colcon test-result --verbose
       shell: bash
 

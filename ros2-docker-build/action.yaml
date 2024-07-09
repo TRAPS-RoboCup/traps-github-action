@@ -53,7 +53,7 @@ runs:
     if: ${{ fromJson(inputs.checkout) }}
     uses: actions/checkout@v4
     with:
-      path: ${{ inputs.workspace-dir }}/src/${{ steps.set-repository-name.outputs.name }}
+      path: ${{ inputs.workspace-path }}/src/${{ steps.set-repository-name.outputs.name }}
   
   - name: Login to GitHub Container Registry
     uses: docker/login-action@v3
@@ -90,7 +90,7 @@ runs:
       labels: ${{ steps.set-docker-metadata.outputs.labels }}
       build-args: |
         BASE_IMAGE=ros:${{ inputs.rosdistro }}-ros-base
-        WORKSPACE_DIR=${{ github.workspace }}/${{ inputs.workspace-dir }}
+        WORKSPACE_DIR=${{ github.workspace }}/${{ inputs.workspace-path }}
         APT_REQUIREMENTS=${{ inputs.apt-requirements }}
         ENTRYPOINT_FILE=${{ github.action_path }}/ros_ws_entrypoint.sh
       no-cache: true
