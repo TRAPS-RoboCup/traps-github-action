@@ -24,7 +24,7 @@ inputs:
   workspace-dir:
     description: ROS2 Workspace directory
     required: false
-    default: .
+    default: ./ros2_ws
   token:
     description: TOKEN used to push Docker Image
     required: false
