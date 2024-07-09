@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: TRAPS-Robocup/traps_tools_ros
-          path: src/traps_tools_ros
+          path: ros2_ws/src/traps_tools_ros
       
       - name: Colcon test
         uses: ./.traps-github-action/colcon-test
