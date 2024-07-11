@@ -65,7 +65,7 @@ runs:
       run: |
         for requirements_file in "./src/*/config/apt/requirements.txt"
         do
-          if [ -f ./src/*/config/apt/requirements.txt ]
+          if [ -f "${requirements_file}" ]
           then
             sudo xargs -a ${requirements_file} apt-get install -y
           fi
