@@ -63,7 +63,7 @@ runs:
 
     - name: Install package requirements
       run: |
-        for requirements_file in "${{ inputs.workspace-path }}/src/*/config/apt/requirements.txt"
+        for requirements_file in ${{ inputs.workspace-path }}/src/*/config/apt/requirements.txt
         do
           if [ -f "${requirements_file}" ]
           then
