@@ -4,6 +4,8 @@ run-name: Push tag:${{ github.ref_name }}(${{ github.event.head_commit.message }
 
 on:
   push:
+    branches:
+      - 'main'
 
 jobs:
   push-tag:
