@@ -9,11 +9,9 @@ run-name: Push tag:${{ github.ref_name }}(${{ github.event.head_commit.message }
 
 on:
   push:
-    branches:
-      - 'main'
 
 jobs:
-  add-tag:
+  push-tag:
     runs-on: ubuntu-22.04
 
     permissions:
@@ -21,6 +19,8 @@ jobs:
 
     steps:
       - name: Push tag
-        uses: ./.traps-github-action/push-tag
+        uses: TRAPS-RoboCup/traps-github-action/push-tag
+        with:
+          checkout: false
 
 ```
