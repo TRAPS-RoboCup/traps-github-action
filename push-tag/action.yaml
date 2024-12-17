@@ -39,7 +39,10 @@ runs:
       with:
         path: ${{ inputs.path }}
         token: ${{ inputs.token }}
-        fetch-tags: true
+    
+    - name: Fetch tags
+      run: git fetch --prune --unshallow --tags
+      shell: bash
 
     - name: Install xmmlint
       run: sudo apt update && sudo apt install -y libxml2-utils
