@@ -6,7 +6,7 @@ on:
   push:
 
 jobs:
-  add-tag:
+  push-tag:
     runs-on: ubuntu-22.04
 
     permissions:
@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-tags: true
 
       - name: Push tag
         uses: ./push-tag
