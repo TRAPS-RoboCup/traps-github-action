@@ -12,6 +12,13 @@ jobs:
     permissions:
       contents: write
 
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-tags: true
+
     steps:
       - name: Push tag
-        uses: ${{ github.repository }}/push-tag@${{ github.sha }}
+        uses: ./push-tag
+        with:
+          checkout: false
