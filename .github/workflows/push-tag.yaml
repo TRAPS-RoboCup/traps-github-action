@@ -14,4 +14,4 @@ jobs:
 
     steps:
       - name: Push tag
-        uses: ./.traps-github-action/push-tag
+        uses: ${{ github.repository }}/push-tag@${{ github.sha }}
