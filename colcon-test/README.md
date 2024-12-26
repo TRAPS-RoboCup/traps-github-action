@@ -95,5 +95,5 @@ jobs:
         uses: TRAPS-RoboCup/traps-github-action/colcon-test@main
         with:
           workspace-path: .
-          checkout false
+          checkout: false
 ```
