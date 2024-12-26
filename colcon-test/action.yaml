@@ -61,8 +61,14 @@ runs:
       run: sudo apt-get update && sudo apt-get upgrade -y
       shell: bash
 
+    - name: install rosdep2
+      run: sudo apt-get install -y python3-rosdep2
+      shell: bash
+
     - name: Install package requirements
       run: |
+        rosdep update
+        rosdep install --from-paths ${{ inputs.workspace-path }}/src -iy
         for requirements_file in ${{ inputs.workspace-path }}/src/*/config/apt/requirements.txt
         do
           if [ -f "${requirements_file}" ]
