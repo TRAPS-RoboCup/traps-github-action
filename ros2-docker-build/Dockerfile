@@ -39,14 +39,12 @@ RUN if [ -f ./src/*/.git/config ]; then sed -i '/\[http "https:\/\/github\.com\/
 
 # パッケージのインストール
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y ${REQUIRE_APTS} lsb-release wget software-properties-common gnupg
-RUN wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 18
+RUN apt-get install -y ${REQUIRE_APTS}
 RUN rosdep update && rosdep install -iy --from-paths src
-RUN rm ./llvm.sh && apt-get remove -y lsb-release wget software-properties-common gnupg
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ビルド
-RUN . /opt/ros/humble/setup.sh && colcon build --cmake-args -D CMAKE_C_COMPILER=clang-18 -D CMAKE_CXX_COMPILER=clang++-18
+RUN . /opt/ros/humble/setup.sh && colcon build
 RUN rm -rf ./log
 
 # .bashrcへの書き込み
