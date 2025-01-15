@@ -45,7 +45,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ビルド
 RUN . /opt/ros/humble/setup.sh && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
-RUN rm -rf ./log
+RUN rm -rf ./log ./build ./src
 
 # .bashrcへの書き込み
 RUN echo source $(pwd)/install/setup.bash >> ~/.bashrc
