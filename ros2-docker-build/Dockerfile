@@ -29,26 +29,31 @@ WORKDIR /root/ros2_ws
 # ユーザー設定
 USER root
 
-# リポジトリとws_entry_point.shのコピー
-COPY ${WORKSPACE_DIR}/. .
+# ws_entry_point.shのコピー
 COPY ${ENTRYPOINT_FILE} /ros_ws_entrypoint.sh
 RUN chmod +x /ros_ws_entrypoint.sh
 
-# GitHub workfrowで実行時のリモート設定を削除
-RUN if [ -f ./src/*/.git/config ]; then sed -i '/\[http "https:\/\/github\.com\/"\]/,+1 d' ./src/*/.git/config; fi
+# ワークスペースのコピー
+COPY ${WORKSPACE_DIR}/. .
 
-# パッケージのインストール
-RUN apt-get update && apt-get upgrade -y --no-install-recommends
-RUN apt-get install -y ${REQUIRE_APTS} --no-install-recommends
-RUN rosdep update && rosdep install -iy --from-paths src
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# ビルドの実行
+RUN <<EOF
+  # GitHub workfrowで実行時のリモート設定を削除
+  if [ -f ./src/*/.git/config ]; then sed -i '/\[http "https:\/\/github\.com\/"\]/,+1 d' ./src/*/.git/config; fi
 
-# ビルド
-RUN . /opt/ros/humble/setup.sh && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
-RUN rm -rf ./log ./build ./src
+  # パッケージのインストール
+  apt-get update && apt-get upgrade -y --no-install-recommends
+  apt-get install -y ${REQUIRE_APTS} --no-install-recommends
+  rosdep update && rosdep install -iy --from-paths src
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# .bashrcへの書き込み
-RUN echo source $(pwd)/install/setup.bash >> ~/.bashrc
+  # ビルド
+  . /opt/ros/humble/setup.sh && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+  rm -rf ./log ./build ./src
+
+  # .bashrcへの書き込み
+  echo source $(pwd)/install/setup.bash >> ~/.bashrc
+EOF
 
 # 実行前に行われる操作
 ENTRYPOINT ["/ros_ws_entrypoint.sh"]
