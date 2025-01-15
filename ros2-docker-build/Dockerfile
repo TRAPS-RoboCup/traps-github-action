@@ -38,8 +38,8 @@ RUN chmod +x /ros_ws_entrypoint.sh
 RUN if [ -f ./src/*/.git/config ]; then sed -i '/\[http "https:\/\/github\.com\/"\]/,+1 d' ./src/*/.git/config; fi
 
 # パッケージのインストール
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y ${REQUIRE_APTS}
+RUN apt-get update && apt-get upgrade -y --no-install-recommends
+RUN apt-get install -y ${REQUIRE_APTS} --no-install-recommends
 RUN rosdep update && rosdep install -iy --from-paths src
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
