@@ -39,7 +39,6 @@ RUN if [ -f ./src/*/.git/config ]; then sed -i '/\[http "https:\/\/github\.com\/
 
 # パッケージのインストール
 RUN apt-get update && apt-get upgrade -y
-RUN if [ -f ./src/*/config/apt/requirements.txt ]; then for requirements_file in "./src/*/config/apt/requirements.txt"; do xargs -a ${requirements_file} apt-get install -y; done; fi
 RUN apt-get install -y ${REQUIRE_APTS} lsb-release wget software-properties-common gnupg
 RUN wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 18
 RUN rosdep update && rosdep install -iy --from-paths src
