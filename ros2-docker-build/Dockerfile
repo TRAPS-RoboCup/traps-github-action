@@ -44,7 +44,7 @@ RUN rosdep update && rosdep install -iy --from-paths src
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ビルド
-RUN . /opt/ros/humble/setup.sh && colcon build
+RUN . /opt/ros/humble/setup.sh && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 RUN rm -rf ./log
 
 # .bashrcへの書き込み
