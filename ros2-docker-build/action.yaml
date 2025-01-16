@@ -93,6 +93,7 @@ runs:
         WORKSPACE_DIR=${{ github.workspace }}/${{ inputs.workspace-path }}
         APT_REQUIREMENTS=${{ inputs.apt-requirements }}
         ENTRYPOINT_FILE=${{ github.action_path }}/ros_ws_entrypoint.sh
-      no-cache: true
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
+      cache-from: type=gha
+      cache-to: type=gha,mode=max
