@@ -39,6 +39,8 @@ RUN echo "source $(pwd)/install/setup.bash" >> ~/.bashrc
 RUN <<EOF
   apt-get update
   apt-get upgrade -y --no-install-recommends
+  apt-get install -y --no-install-recommends ${REQUIRE_APTS}
+  apt-get autoremove -y --purge
   apt-get clean
   rm -rf /var/lib/apt/lists/*
 EOF
