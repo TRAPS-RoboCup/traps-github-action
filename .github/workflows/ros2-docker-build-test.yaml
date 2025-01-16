@@ -1,6 +1,6 @@
-name: Docker Build
+name: Docker Build Test
 
-run-name: Docker Build:${{ github.ref_name }}(${{ github.event.head_commit.message }})
+run-name: Docker Build Test:${{ github.ref_name }}(${{ github.event.head_commit.message }})
 
 on:
   push:
@@ -13,26 +13,23 @@ jobs:
       packages: write
       contents: read
 
-    env:
-      PLATFORMS: linux/amd64, linux/arm64/v8
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           path: .traps-github-action
 
-      - name: Resist repository name
-        id: repository
-        run: echo "name=${GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/}" >> $GITHUB_OUTPUT
-
-      - name: Checkout
+      - name: Checkout traps_example_ros
         uses: actions/checkout@v4
         with:
-          repository: TRAPS-Robocup/traps_tools_ros
-          path: ros2_ws/src/traps_tools_ros
-      
-      - name: Docker Build and Push
-        uses: ./.traps-github-action/ros2-docker-build
+          path: ./ros2_ws/src/traps_example_ros
+          repository: TRAPS-RoboCup/traps_example_ros
+
+      - name: Build and push
+        uses: ./.traps-github-action/ros2-docker-build@main
         with:
           checkout: false
+          workspace-path: ./ros2_ws
+          platforms: linux/amd64, linux/arm64/v8
+          rosdistro: humble
+          apt-requirements:
