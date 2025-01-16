@@ -32,6 +32,14 @@ USER root
 # ws_entry_point.shのコピー
 COPY ${ENTRYPOINT_FILE} /ros_ws_entrypoint.sh
 
+# apt upgrade
+RUN <<EOF
+  apt-get update
+  apt-get upgrade -y --no-install-recommends
+  apt-get clean
+  rm -rf /var/lib/apt/lists/*
+EOF
+
 # ワークスペースのコピー
 COPY ${WORKSPACE_DIR}/. .
 
@@ -41,13 +49,14 @@ RUN <<EOF
   if [ -f ./src/*/.git/config ]; then sed -i '/\[http "https:\/\/github\.com\/"\]/,+1 d' ./src/*/.git/config; fi
 
   # パッケージのインストール
-  apt-get update && apt-get upgrade -y --no-install-recommends
-  apt-get install -y ${REQUIRE_APTS} --no-install-recommends
-  rosdep update && rosdep install -iy --from-paths src
-  apt-get clean && rm -rf /var/lib/apt/lists/*
+  rosdep update
+  rosdep install -iy --from-paths src
+  apt-get clean
+  rm -rf /var/lib/apt/lists/*
 
   # ビルド
-  . /opt/ros/humble/setup.sh && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+  . /opt/ros/humble/setup.sh
+  colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
   rm -rf ./log ./build ./src
 
   # .bashrcへの書き込み
