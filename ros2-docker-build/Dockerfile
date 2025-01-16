@@ -13,10 +13,10 @@
 # limitations under the License.
 
 # イメージ引数設定
-ARG BASE_IMAGE
+ARG ROS_DISTRO
 
 # プラットフォームとベースのイメージを設定
-FROM ${BASE_IMAGE}
+FROM ros:${ROS_DISTRO}
 
 # ワークスペスのディレクトリ名と必須aptパッケージの名前
 ARG WORKSPACE_DIR
@@ -58,7 +58,7 @@ RUN <<EOF
   rm -rf /var/lib/apt/lists/*
 
   # ビルド
-  . /opt/ros/humble/setup.sh
+  . /opt/ros/${ROS_DISTRO}/setup.sh
   colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
   rm -rf ./log ./build ./src
 EOF

@@ -89,7 +89,7 @@ runs:
       tags: ${{ steps.set-docker-metadata.outputs.tags }}
       labels: ${{ steps.set-docker-metadata.outputs.labels }}
       build-args: |
-        BASE_IMAGE=ros:${{ inputs.rosdistro }}-ros-base
+        ROS_DISTRO=${{ inputs.rosdistro }}
         WORKSPACE_DIR=${{ github.workspace }}/${{ inputs.workspace-path }}
         APT_REQUIREMENTS=${{ inputs.apt-requirements }}
         ENTRYPOINT_FILE=${{ github.action_path }}/ros_ws_entrypoint.sh
