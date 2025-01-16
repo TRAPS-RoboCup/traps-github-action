@@ -54,6 +54,7 @@ RUN <<EOF
   if [ -f ./src/*/.git/config ]; then sed -i '/\[http "https:\/\/github\.com\/"\]/,+1 d' ./src/*/.git/config; fi
 
   # パッケージのインストール
+  apt-get update
   rosdep update
   rosdep install -iy --from-paths src
   apt-get clean
