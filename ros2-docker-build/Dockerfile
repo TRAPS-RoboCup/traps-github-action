@@ -46,7 +46,7 @@ EOF
 # ワークスペースのコピー
 COPY ${WORKSPACE_DIR}/. .
 
-# ビルドの実行
+# ビルドとgitの設定の実行
 RUN <<EOF
   # GitHub workfrowで実行時のリモート設定を削除
   if [ -f ./src/*/.git/config ]; then sed -i '/\[http "https:\/\/github\.com\/"\]/,+1 d' ./src/*/.git/config; fi
