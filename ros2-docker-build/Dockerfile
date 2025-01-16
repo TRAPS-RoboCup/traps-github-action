@@ -31,7 +31,6 @@ USER root
 
 # ws_entry_point.shのコピー
 COPY ${ENTRYPOINT_FILE} /ros_ws_entrypoint.sh
-RUN chmod +x /ros_ws_entrypoint.sh
 
 # ワークスペースのコピー
 COPY ${WORKSPACE_DIR}/. .
