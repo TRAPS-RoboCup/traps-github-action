@@ -32,6 +32,9 @@ USER root
 # ws_entry_point.shのコピー
 COPY ${ENTRYPOINT_FILE} /ros_ws_entrypoint.sh
 
+# bashrcの設定
+RUN echo "source $(pwd)/install/setup.bash" >> ~/.bashrc
+
 # apt upgrade
 RUN <<EOF
   apt-get update
@@ -58,9 +61,6 @@ RUN <<EOF
   . /opt/ros/humble/setup.sh
   colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
   rm -rf ./log ./build ./src
-
-  # .bashrcへの書き込み
-  echo source $(pwd)/install/setup.bash >> ~/.bashrc
 EOF
 
 # 実行前に行われる操作
