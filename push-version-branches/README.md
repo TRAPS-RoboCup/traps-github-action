@@ -15,15 +15,17 @@ jobs:
   push-tag:
     runs-on: ubuntu-22.04
 
-    permissions:
-      contents: write
-      actions: write
+    # permissions: # Required when using github.token
+    #   contents: write
+    #   actions: write
 
     steps:
       - name: Push version branches
         uses: TRAPS-RoboCup/traps-github-action/push-version-branches@main
         # with:
-        #  tag: $${{ github.ref }}
-        #  checkout: true
+        #   checkout: true
+        #   # token: ${{ github.token }} # If you do not change workflow
+        #   token: ${{ secrets.PAT }} # Maybe you need this
+        #   tag: ${GITHUB_REF#refs/*/}
 
 ```
