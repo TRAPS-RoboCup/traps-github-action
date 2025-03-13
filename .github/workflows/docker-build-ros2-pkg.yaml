@@ -15,4 +15,4 @@ jobs:
 
     steps:
       - name: Build and push
-        uses: TRAPS-RoboCup/traps-github-action/docker-build-ros2-pkg@main
+        uses: ./docker-build-ros2-pkg
