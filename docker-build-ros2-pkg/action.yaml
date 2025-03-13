@@ -60,7 +60,7 @@ runs:
   - name: Build and push
     uses: docker/build-push-action@v5
     with:
-      context: ${{ github.action_path }}/docker-build-ros2-pkg
+      context: ${{ github.action_path }}
       file: Dockerfile
       push: true
       tags: ${{ steps.set-docker-metadata.outputs.tags }}
