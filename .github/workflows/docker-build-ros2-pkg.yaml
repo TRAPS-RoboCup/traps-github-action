@@ -1,6 +1,6 @@
 name: "Test: Docker Build ROS2 Pkg"
 
-run-name: "Test: Docker Build ROS2 Pkg:${{ github.ref_name }}(${{ github.event.head_commit.message }})""
+run-name: "Test: Docker Build ROS2 Pkg:${{ github.ref_name }}(${{ github.event.head_commit.message }})"
 
 on:
   push:
