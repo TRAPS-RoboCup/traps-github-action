@@ -14,5 +14,8 @@ jobs:
       contents: read
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Build and push
         uses: ./docker-build-ros2-pkg
