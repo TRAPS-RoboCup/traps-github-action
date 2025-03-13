@@ -61,7 +61,7 @@ runs:
     uses: docker/build-push-action@v5
     with:
       context: ${{ github.action_path }}
-      file: Dockerfile
+      file: ${{ github.action_path }}/Dockerfile
       push: true
       tags: ${{ steps.set-docker-metadata.outputs.tags }}
       labels: ${{ steps.set-docker-metadata.outputs.labels }}
