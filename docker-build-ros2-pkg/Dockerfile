@@ -65,8 +65,8 @@ RUN <<EOF
 
   # パッケージのインストール
   apt-get update
-  rosdep update
-  rosdep install -iy --from-paths src
+  rosdep update --rosdistro=${ROS_DISTRO}
+  rosdep install -iy --from-paths src --rosdistro=${ROS_DISTRO}
   apt-get clean
   rm -rf /var/lib/apt/lists/*
 
