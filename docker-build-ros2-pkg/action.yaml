@@ -68,6 +68,7 @@ runs:
       build-args: |
         ROS_DISTRO=${{ inputs.rosdistro }}
         ENTRYPOINT_FILE=ros_ws_entrypoint.sh
+        GIT_REMOTE_URL=https://github.com/${{ github.repository }}.git
         PRE_IMPORT_SCRIPT=git config --global url.https://${{ inputs.token }}@github.com.insteadOf https://github.com
         BUILD_OPTIONS=--cmake-args -DCMAKE_BUILD_TYPE=Release
       platforms: ${{ inputs.platforms }}
