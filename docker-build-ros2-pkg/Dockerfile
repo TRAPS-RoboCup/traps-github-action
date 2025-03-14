@@ -25,7 +25,7 @@ ARG ENTRYPOINT_FILE="ros_ws_entrypoint.sh"
 ARG PRE_IMPORT_SCRIPT=""
 ARG GIT_REMOTE_URL
 ARG POST_IMPORT_SCRIPT=""
-ARG GIT_CLONE_OPTIONS="--depth 1 --recuruse-submodules"
+ARG GIT_CLONE_OPTIONS="--depth 1 --recurse-submodules"
 ARG REPOS_FILES="*.repos"
 ARG PRE_BUILD_SCRIPT=""
 ARG BUILD_OPTIONS="--cmake-args -DCMAKE_BUILD_TYPE=Release"
