@@ -55,7 +55,7 @@ RUN <<EOF
   # git clone
   mkdir -p src/${GIT_REPOSITORY_NAME}
   cd src/${GIT_REPOSITORY_NAME}
-  git init --bare
+  git init
   git remote add origin ${GIT_REMOTE_URL}
   git fetch --depth 1 origin ${GIT_SHA}
   git checkout FETCH_HEAD
