@@ -47,6 +47,8 @@ RUN echo "source ${INSTALL_DIR}/setup.bash" >> ~/.bashrc
 
 # ビルドとgitの設定の実行
 RUN <<EOF
+  set -e
+
   # pre import script
   ${PRE_IMPORT_SCRIPT}
 
