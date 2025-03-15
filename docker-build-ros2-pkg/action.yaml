@@ -68,8 +68,9 @@ runs:
       build-args: |
         ROS_DISTRO=${{ inputs.rosdistro }}
         ENTRYPOINT_FILE=ros_ws_entrypoint.sh
+        GIT_REPOSITORY_NAME=${{ github.event.repository.name }}
         GIT_REMOTE_URL=https://github.com/${{ github.repository }}.git
-        GIT_CLONE_OPTIONS=--depth 1 --recurse-submodules -b ${{ github.sha }}
+        GIT_SHA=${{ github.sha }}
         PRE_IMPORT_SCRIPT=git config --global url.https://${{ inputs.token }}@github.com.insteadOf https://github.com
         BUILD_OPTIONS=--cmake-args -DCMAKE_BUILD_TYPE=Release
       platforms: ${{ inputs.platforms }}

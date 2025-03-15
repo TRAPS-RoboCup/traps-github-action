@@ -23,7 +23,9 @@ ARG WORKSPACE_DIR="/root/ros2_ws"
 ARG INSTALL_DIR="${WORKSPACE_DIR}/install"
 ARG ENTRYPOINT_FILE="ros_ws_entrypoint.sh"
 ARG PRE_IMPORT_SCRIPT=""
+ARG GIT_REPOSITORY_NAME
 ARG GIT_REMOTE_URL
+ARG GIT_SHA
 ARG POST_IMPORT_SCRIPT=""
 ARG GIT_CLONE_OPTIONS="--depth 1 --recurse-submodules"
 ARG REPOS_FILES="*.repos"
@@ -49,10 +51,13 @@ RUN <<EOF
   ${PRE_IMPORT_SCRIPT}
 
   # git clone
-  mkdir src
-  cd src
-  git clone ${GIT_CLONE_OPTIONS} ${GIT_REMOTE_URL}
-  cd ..
+  mkdir -p src/${GIT_REPOSITORY_NAME}
+  cd src/${GIT_REPOSITORY_NAME}
+  git init --bare
+  git remote add origin ${GIT_REMOTE_URL}
+  git fetch --depth 1 origin ${GIT_SHA}
+  git checkout FETCH_HEAD
+  cd ${WORKSPACE_DIR}
 
   # vcs import
   for REPOS_FILE in src/*/${REPOS_FILES}; do
