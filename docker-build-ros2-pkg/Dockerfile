@@ -45,6 +45,17 @@ COPY ${ENTRYPOINT_FILE} /ros_ws_entrypoint.sh
 # bashrcの設定
 RUN echo "source ${INSTALL_DIR}/setup.bash" >> ~/.bashrc
 
+# apt upgrade
+RUN <<EOF
+  set -e
+
+  apt-get update
+  apt-get upgrade -y --no-install-recommends
+  # apt-get autoremove -y --purge
+  apt-get clean
+  rm -rf /var/lib/apt/lists/*
+EOF
+
 # ビルドとgitの設定の実行
 RUN <<EOF
   set -e
@@ -72,7 +83,6 @@ RUN <<EOF
 
   # パッケージのインストール
   apt-get update
-  apt-get upgrade -y --no-install-recommends
   rosdep update --rosdistro=${ROS_DISTRO}
   rosdep install -iy --from-paths src --rosdistro=${ROS_DISTRO}
   apt-get clean
