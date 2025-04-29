@@ -86,9 +86,9 @@ runs:
     run: |
       if docker manifest inspect ${{ steps.set-docker-metadata-depends-only-sha.outputs.tags }} > /dev/null 2>&1;
       then
-        echo "exist=false" >> $GITHUB_OUTPUT
-      else
         echo "exist=true" >> $GITHUB_OUTPUT
+      else
+        echo "exist=false" >> $GITHUB_OUTPUT
       fi
     shell: bash
 
