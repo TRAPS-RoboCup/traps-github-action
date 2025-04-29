@@ -73,12 +73,13 @@ runs:
     uses: docker/metadata-action@v5
     with:
       images: ghcr.io/${{ github.repository }}/depends_only
-      tags: |
-        type=schedule
-        type=ref,event=branch
-        type=ref,event=tag
-        type=ref,event=pr
-        type=raw, value=sha-${{ steps.get-depend-changed.outputs.sha }}
+
+  - name: Extract metadata (tags, labels) for Docker (depends only) (sha)
+    id: set-docker-metadata-depends-only-sha
+    uses: docker/metadata-action@v5
+    with:
+      images: ghcr.io/${{ github.repository }}/depends_only
+      tags: sha-${{ steps.get-depend-changed.outputs.sha }}
 
   - name: Build and push (depends only)
     uses: docker/build-push-action@v5
@@ -86,8 +87,12 @@ runs:
       context: ${{ github.action_path }}/depends-only
       file: ${{ github.action_path }}/depends-only/Dockerfile
       push: true
-      tags: ${{ steps.set-docker-metadata-depends-only.outputs.tags }}
-      labels: ${{ steps.set-docker-metadata-depends-only.outputs.labels }}
+      tags: |
+        ${{ steps.set-docker-metadata-depends-only.outputs.tags }}
+        ${{ steps.set-docker-metadata-depends-only-sha.outputs.tags }}
+      labels: |
+        ${{ steps.set-docker-metadata-depends-only.outputs.labels }}
+        ${{ steps.set-docker-metadata-depends-only-sha.outputs.labels }}
       build-args: |
         ROS_DISTRO=${{ inputs.rosdistro }}
         ENTRYPOINT_FILE=ros_ws_entrypoint.sh
@@ -114,8 +119,7 @@ runs:
       tags: ${{ steps.set-docker-metadata.outputs.tags }}
       labels: ${{ steps.set-docker-metadata.outputs.labels }}
       build-args: |
-        BASE_IMAGE=${{ steps.set-docker-metadata-depends-only.outputs.labels }}:sha-${{ steps.get-depend-changed.outputs.sha }}
-        ROS_DISTRO=${{ inputs.rosdistro }}
+        BASE_IMAGE=${{ steps.set-docker-metadata-depends-only-sha.outputs.labels }}:${{ steps.set-docker-metadata-depends-only-sha.outputs.tags }}
         ENTRYPOINT_FILE=ros_ws_entrypoint.sh
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
