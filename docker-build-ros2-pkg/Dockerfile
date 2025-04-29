@@ -20,6 +20,12 @@ FROM ${BASE_IMAGE}
 
 # ワークスペスのディレクトリ名と必須aptパッケージの名前
 ARG ROS_DISTRO="humble"
+ARG PRE_IMPORT_SCRIPT=""
+ARG GIT_REMOTE_URL
+ARG GIT_SHA
+ARG POST_IMPORT_SCRIPT=""
+ARG GIT_CLONE_OPTIONS="--depth 1 --recurse-submodules"
+ARG REPOS_FILES="*.repos"
 ARG WORKSPACE_DIR="/root/ros2_ws"
 ARG INSTALL_DIR="${WORKSPACE_DIR}/install"
 ARG ENTRYPOINT_FILE="ros_ws_entrypoint.sh"
@@ -42,6 +48,24 @@ COPY ${ENTRYPOINT_FILE} /ros_ws_entrypoint.sh
 # ビルドとgitの設定の実行
 RUN <<EOF
   set -e
+
+  # git clone 
+  mkdir -p src/$(basename -s .git ${GIT_REMOTE_URL})
+  cd src/$(basename -s .git ${GIT_REMOTE_URL})
+  git init
+  git remote add origin ${GIT_REMOTE_URL}
+  git fetch --depth 1 origin ${GIT_SHA}
+  git checkout FETCH_HEAD
+  cd ${WORKSPACE_DIR}
+
+  # vcs import
+  for REPOS_FILE in src/*/${REPOS_FILES}; do
+    if [ ! -f ${REPOS_FILE} ]; then continue; fi
+    vcs import src < "${REPOS_FILE}"
+  done
+
+  # post import script
+  ${POST_IMPORT_SCRIPT}
 
   # ビルド前のスクリプト
   ${PRE_BUILD_SCRIPT}
