@@ -64,6 +64,7 @@ runs:
       depth: 0
 
   - name: Get depend chenged sha
+    working-directory: ${{ steps.make-temp-dir.outputs.path }}
     id: get-depend-changed
     run: echo "sha=$(git log -n 1 --pretty=format:"%H" -- $(git ls-files '*.repos' package.xml))" >> $GITHUB_OUTPUT
     shell: bash
