@@ -68,8 +68,7 @@ runs:
     with:
       filters: |
         depends:
-          - '${{ steps.make-temp-dir.outputs.path }}/*.repos'
-          - '${{ steps.make-temp-dir.outputs.path }}/package.xml'
+          - '${{ steps.make-temp-dir.outputs.path }}/test-depends.repos'
 
   - name: test
     run: |
