@@ -61,7 +61,7 @@ runs:
     with:
       token: ${{ inputs.token }}
       path: ${{ steps.make-temp-dir.outputs.path }}
-      depth: 0
+      fetch-depth: 0
 
   - name: Get depend chenged sha
     working-directory: ${{ steps.make-temp-dir.outputs.path }}
