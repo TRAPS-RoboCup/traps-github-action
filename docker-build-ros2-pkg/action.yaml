@@ -62,12 +62,6 @@ runs:
       token: ${{ inputs.token }}
       path: ${{ steps.make-temp-dir.outputs.path }}
 
-  - name: test
-    run: |
-      ls ${{ steps.make-temp-dir.outputs.path }}
-      exit -1
-    shell: bash
-
   - name: Check depend change
     uses: dorny/paths-filter@v3
     id: check-changes
@@ -76,6 +70,13 @@ runs:
         depends:
           - '${{ steps.make-temp-dir.outputs.path }}/*.repos'
           - '${{ steps.make-temp-dir.outputs.path }}/package.xml'
+
+  - name: test
+    run: |
+      ls ${{ steps.make-temp-dir.outputs.path }}
+      echo ${{ steps.check-changes.outputs.depends }}
+      exit -1
+    shell: bash
 
   - name: Extract metadata (tags, labels) for Docker (depends only)
     if: steps.check-changes.outputs.depends == 'true'
