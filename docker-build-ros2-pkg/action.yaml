@@ -62,6 +62,13 @@ runs:
       token: ${{ inputs.token }}
       path: ${{ steps.make-temp-dir.outputs.path }}
 
+  - name: Make temp dir
+    id: make-temp-dir
+    run: |
+      ls ${{ steps.make-temp-dir.outputs.path }}
+      exit -1
+    shell: bash
+
   - name: Check depend change
     uses: dorny/paths-filter@v3
     id: check-changes
