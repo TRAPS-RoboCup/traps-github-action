@@ -16,7 +16,7 @@
 ARG BASE_IMAGE
 
 # プラットフォームとベースのイメージを設定
-FROM BASE_IMAGE
+FROM ${BASE_IMAGE}
 
 # ワークスペスのディレクトリ名と必須aptパッケージの名前
 ARG ROS_DISTRO="humble"
