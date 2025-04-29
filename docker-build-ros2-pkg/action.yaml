@@ -73,7 +73,7 @@ runs:
     if: steps.check-changes.outputs.depends == 'true'
     with:
       context: ${{ github.action_path }}/depends-only
-      file: ${{ github.action_path }}/Dockerfile
+      file: ${{ github.action_path }}/depends-only/Dockerfile
       push: true
       tags: ${{ steps.set-docker-metadata-depends-only.outputs.tags }}
       labels: ${{ steps.set-docker-metadata-depends-only.outputs.labels }}
