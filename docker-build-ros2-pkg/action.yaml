@@ -61,44 +61,32 @@ runs:
     with:
       token: ${{ inputs.token }}
       path: ${{ steps.make-temp-dir.outputs.path }}
+      depth: 0
 
-  - name: Check depend change
-    uses: dorny/paths-filter@v3
-    id: check-changes
-    with:
-      filters: |
-        depends:
-          - ${{ steps.make-temp-dir.outputs.path }}/test-depends.repos
-
-  - name: test
-    run: |
-      ls ${{ steps.make-temp-dir.outputs.path }}
-      echo ${{ steps.check-changes.outputs.depends }}
-      exit -1
+  - name: Get depend chenged sha
+    id: get-depend-changed
+    run: echo "sha=$(git log -n 1 --pretty=format:"%H" -- $(git ls-files '*.repos' package.xml))" >> $GITHUB_OUTPUT
     shell: bash
 
   - name: Extract metadata (tags, labels) for Docker (depends only)
-    if: steps.check-changes.outputs.depends == 'true'
     id: set-docker-metadata-depends-only
     uses: docker/metadata-action@v5
     with:
       images: ghcr.io/${{ github.repository }}/depends_only
-      tags: type=ref
 
   - name: Build and push (depends only)
     uses: docker/build-push-action@v5
-    if: steps.check-changes.outputs.depends == 'true'
     with:
       context: ${{ github.action_path }}/depends-only
       file: ${{ github.action_path }}/depends-only/Dockerfile
       push: true
-      tags: ${{ steps.set-docker-metadata-depends-only.outputs.tags }}
+      tags: ${{ steps.set-docker-metadata-depends-only.outputs.tags }}, sha-${{ steps.get-depend-changed.outputs.sha }}
       labels: ${{ steps.set-docker-metadata-depends-only.outputs.labels }}
       build-args: |
         ROS_DISTRO=${{ inputs.rosdistro }}
         ENTRYPOINT_FILE=ros_ws_entrypoint.sh
         GIT_REMOTE_URL=https://github.com/${{ github.repository }}.git
-        GIT_SHA=${{ github.sha }}
+        GIT_SHA=${{ steps.get-depend-changed.outputs.sha }}
         PRE_IMPORT_SCRIPT=git config --global url.https://${{ inputs.token }}@github.com.insteadOf https://github.com
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
@@ -120,7 +108,7 @@ runs:
       tags: ${{ steps.set-docker-metadata.outputs.tags }}
       labels: ${{ steps.set-docker-metadata.outputs.labels }}
       build-args: |
-        BASE_IMAGE=${{ steps.set-docker-metadata-depends-only.outputs.labels }}:${{ steps.set-docker-metadata-depends-only.outputs.tags }}
+        BASE_IMAGE=${{ steps.set-docker-metadata-depends-only.outputs.labels }}:sha-${{ steps.get-depend-changed.outputs.sha }}
         ROS_DISTRO=${{ inputs.rosdistro }}
         ENTRYPOINT_FILE=ros_ws_entrypoint.sh
       platforms: ${{ inputs.platforms }}
