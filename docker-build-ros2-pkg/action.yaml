@@ -51,14 +51,24 @@ runs:
     with:
       platforms: ${{ inputs.platforms }}
 
+  - name: Make temp dir
+    id: make-temp-dir
+    run: echo "path=$(mktemp -d)" >> $GITHUB_OUTPUT
+  
+  - name: Checkout
+    uses: actions/checkout@v4
+    with:
+      token: ${{ inputs.token }}
+      path: ${{ steps.make-temp-dir.outputs.path }}
+
   - name: Check depend change
     uses: dorny/paths-filter@v3
     id: check-changes
     with:
       filters: |
         depends:
-          - '*.repos'
-          - 'package.xml'
+          - '${{ steps.make-temp-dir.outputs.path }}/*.repos'
+          - '${{ steps.make-temp-dir.outputs.path }}/package.xml'
 
   - name: Extract metadata (tags, labels) for Docker (depends only)
     if: steps.check-changes.outputs.depends == 'true'
