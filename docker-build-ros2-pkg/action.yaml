@@ -82,7 +82,19 @@ runs:
       images: ghcr.io/${{ github.repository }}/depends_only
       tags: sha-${{ steps.get-depend-changed.outputs.sha }}
 
+  - name: Check depends-only image exist
+    id: check-depends-only-image
+    run: |
+      if docker manifest inspect ${{ steps.set-docker-metadata-depends-only-sha.outputs.tags }} > /dev/null 2>&1;
+      then
+        echo "exist=true" >> $GITHUB_OUTPUT
+      else
+        echo "exist=false" >> $GITHUB_OUTPUT
+      fi
+    shell: bash
+
   - name: Build and push (depends only)
+    if: ${{ steps.check-depends-only-image.outputs.exist != 'true' }}
     uses: docker/build-push-action@v5
     with:
       context: ${{ github.action_path }}/depends-only
