@@ -62,8 +62,7 @@ runs:
       token: ${{ inputs.token }}
       path: ${{ steps.make-temp-dir.outputs.path }}
 
-  - name: Make temp dir
-    id: make-temp-dir
+  - name: test
     run: |
       ls ${{ steps.make-temp-dir.outputs.path }}
       exit -1
