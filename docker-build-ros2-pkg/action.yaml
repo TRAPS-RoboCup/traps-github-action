@@ -40,12 +40,6 @@ runs:
       password: ${{ github.token }}
       logout: false
 
-  - name: Extract metadata (tags, labels) for Docker
-    id: set-docker-metadata
-    uses: docker/metadata-action@v5
-    with:
-      images: ghcr.io/${{ github.repository }}
-  
   - name: Set up QEMU
     uses: docker/setup-qemu-action@v3
     with:
@@ -57,6 +51,49 @@ runs:
     with:
       platforms: ${{ inputs.platforms }}
 
+  - name: Check depend change
+    uses: dorny/paths-filter@v3
+    id: check-changes
+    with:
+      filters: |
+        depends:
+          - '*.repos'
+          - 'package.xml'
+
+  - name: Extract metadata (tags, labels) for Docker (depends only)
+    if: steps.check-changes.outputs.depends == 'true'
+    id: set-docker-metadata-depends-only
+    uses: docker/metadata-action@v5
+    with:
+      images: ghcr.io/${{ github.repository }}/depends_only
+      tags: type=ref
+
+  - name: Build and push (depends only)
+    uses: docker/build-push-action@v5
+    if: steps.check-changes.outputs.depends == 'true'
+    with:
+      context: ${{ github.action_path }}/only-deoends
+      file: ${{ github.action_path }}/Dockerfile
+      push: true
+      tags: ${{ steps.set-docker-metadata-depends-only.outputs.tags }}
+      labels: ${{ steps.set-docker-metadata-depends-only.outputs.labels }}
+      build-args: |
+        ROS_DISTRO=${{ inputs.rosdistro }}
+        ENTRYPOINT_FILE=ros_ws_entrypoint.sh
+        GIT_REMOTE_URL=https://github.com/${{ github.repository }}.git
+        GIT_SHA=${{ github.sha }}
+        PRE_IMPORT_SCRIPT=git config --global url.https://${{ inputs.token }}@github.com.insteadOf https://github.com
+      platforms: ${{ inputs.platforms }}
+      builder: ${{ steps.set-docker-builder.outputs.name }}
+      cache-from: type=gha
+      cache-to: type=gha, mode=max
+
+  - name: Extract metadata (tags, labels) for Docker
+    id: set-docker-metadata
+    uses: docker/metadata-action@v5
+    with:
+      images: ghcr.io/${{ github.repository }}
+
   - name: Build and push
     uses: docker/build-push-action@v5
     with:
@@ -66,13 +103,9 @@ runs:
       tags: ${{ steps.set-docker-metadata.outputs.tags }}
       labels: ${{ steps.set-docker-metadata.outputs.labels }}
       build-args: |
+        BASE_IMAGE=${{ steps.set-docker-metadata-depends-only.outputs.labels }}:${{ steps.set-docker-metadata-depends-only.outputs.tags }}
         ROS_DISTRO=${{ inputs.rosdistro }}
         ENTRYPOINT_FILE=ros_ws_entrypoint.sh
-        GIT_REPOSITORY_NAME=${{ github.event.repository.name }}
-        GIT_REMOTE_URL=https://github.com/${{ github.repository }}.git
-        GIT_SHA=${{ github.sha }}
-        PRE_IMPORT_SCRIPT=git config --global url.https://${{ inputs.token }}@github.com.insteadOf https://github.com
-        BUILD_OPTIONS=--cmake-args -DCMAKE_BUILD_TYPE=Release
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
       cache-from: type=gha
