@@ -54,6 +54,7 @@ runs:
   - name: Make temp dir
     id: make-temp-dir
     run: echo "path=$(mktemp -d)" >> $GITHUB_OUTPUT
+    shell: bash
   
   - name: Checkout
     uses: actions/checkout@v4
