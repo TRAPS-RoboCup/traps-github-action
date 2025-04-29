@@ -53,7 +53,7 @@ runs:
 
   - name: Make temp dir
     id: make-temp-dir
-    run: echo "path=$(mktemp -d)" >> $GITHUB_OUTPUT
+    run: echo "path=$(mktemp -d ${{ github.workspace }}/tmp.XXXXXX)" >> $GITHUB_OUTPUT
     shell: bash
   
   - name: Checkout
