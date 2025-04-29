@@ -73,6 +73,12 @@ runs:
     uses: docker/metadata-action@v5
     with:
       images: ghcr.io/${{ github.repository }}/depends_only
+      tags: |
+        type=schedule
+        type=ref,event=branch
+        type=ref,event=tag
+        type=ref,event=pr
+        type=raw, value=sha-${{ steps.get-depend-changed.outputs.sha }}
 
   - name: Build and push (depends only)
     uses: docker/build-push-action@v5
@@ -80,7 +86,7 @@ runs:
       context: ${{ github.action_path }}/depends-only
       file: ${{ github.action_path }}/depends-only/Dockerfile
       push: true
-      tags: ${{ steps.set-docker-metadata-depends-only.outputs.tags }}, sha-${{ steps.get-depend-changed.outputs.sha }}
+      tags: ${{ steps.set-docker-metadata-depends-only.outputs.tags }}
       labels: ${{ steps.set-docker-metadata-depends-only.outputs.labels }}
       build-args: |
         ROS_DISTRO=${{ inputs.rosdistro }}
