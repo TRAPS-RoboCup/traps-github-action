@@ -104,6 +104,12 @@ runs:
       cache-from: type=gha
       cache-to: type=gha, mode=max
 
+  - name: Debug
+    runs: |
+      echo labels="${{ steps.set-docker-metadata-depends-only-sha.outputs.labels }}"
+      echo tags="${{ steps.set-docker-metadata-depends-only-sha.outputs.tags }}"
+    shell: bash
+
   - name: Extract metadata (tags, labels) for Docker
     id: set-docker-metadata
     uses: docker/metadata-action@v5
