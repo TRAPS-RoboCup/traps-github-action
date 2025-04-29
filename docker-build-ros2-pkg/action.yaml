@@ -72,7 +72,7 @@ runs:
     uses: docker/build-push-action@v5
     if: steps.check-changes.outputs.depends == 'true'
     with:
-      context: ${{ github.action_path }}/only-deoends
+      context: ${{ github.action_path }}/depends-only
       file: ${{ github.action_path }}/Dockerfile
       push: true
       tags: ${{ steps.set-docker-metadata-depends-only.outputs.tags }}
