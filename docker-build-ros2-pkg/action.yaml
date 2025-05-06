@@ -94,7 +94,7 @@ runs:
     shell: bash
 
   - name: Build and push (depends only)
-    if: ${{ steps.check-depends-only-image.outputs.exist != 'true' }}
+    # if: ${{ steps.check-depends-only-image.outputs.exist != 'true' }}
     uses: docker/build-push-action@v5
     with:
       context: ${{ github.action_path }}/depends-only
