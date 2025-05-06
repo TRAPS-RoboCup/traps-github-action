@@ -29,6 +29,18 @@ ARG REPOS_FILES="*.repos"
 # ユーザー設定
 USER root
 
+# install cyclone-dds
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+
+RUN <<EOF
+  set -e
+  apt-get update
+  apt-get install -y ros-humble-rmw-cyclonedds-cpp
+  apt-get clean
+  rm -rf /var/lib/apt/lists/*
+EOF
+
+
 # ビルドとgitの設定の実行
 RUN <<EOF
   set -e
