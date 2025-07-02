@@ -36,9 +36,9 @@ ARG BUILD_OPTIONS="--merge-install --executor sequential --cmake-args -DCMAKE_BU
 ARG POST_BUILD_SCRIPT="rm -rf log"
 RUN <<EOF
   set -e
-  eval ${PRE_BUILD_SCRIPT}
+  ${PRE_BUILD_SCRIPT}
   MAKEFLAGS=-j$(nproc) colcon build ${BUILD_OPTIONS}
-  eval ${POST_BUILD_SCRIPT}
+  ${POST_BUILD_SCRIPT}
 EOF
 
 # set base image(executor)
@@ -65,7 +65,7 @@ COPY --from=builder "/root/traps_ws/install" "install"
 
 # install exec dependencies
 ARG EXEC_DEPENDS_INSTALL_SCRIPT=""
-RUN eval ${EXEC_DEPENDS_INSTALL_SCRIPT}
+RUN bash -c "${EXEC_DEPENDS_INSTALL_SCRIPT}"
 
 # entrypoint & cmd
 ENTRYPOINT ["/traps_entrypoint.sh"]
