@@ -39,13 +39,13 @@ jobs:
           post-build-script: rm -rf log
           exec-depends-install-script: >-
             apt-get update && 
-            apt-get install -y --no-install-recommends python3-rosdep &&
+            apt-get install -y --no-install-recommends python3-rosdep2 &&
             rosdep init && rosdep update --rosdistro=$ROS_DISTRO &&
             rosdep install
             --from-paths install/share
             --rosdistro=$ROS_DISTRO
             -iy
             -t exec &&
-            SUDO_FORCE_REMOVE=yes apt-get autoremove -y --purge python3-rosdep &&
+            SUDO_FORCE_REMOVE=yes apt-get autoremove -y --purge python3-rosdep2 &&
             apt-get clean && rm -rf /var/lib/apt/lists/*
           
