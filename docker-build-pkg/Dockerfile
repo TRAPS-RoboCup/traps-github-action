@@ -28,6 +28,7 @@ COPY "${HOST_PACKAGES_PATH}" "src"
 
 # install build dependencies
 ARG BUILD_DEPENDS_INSTALL_SCRIPT=""
+RUN bash -c "${BUILD_DEPENDS_INSTALL_SCRIPT}"
 
 # colcon build
 ARG PRE_BUILD_SCRIPT=". /opt/ros/${ROS_DISTRO}/setup.sh"
@@ -64,6 +65,7 @@ COPY --from=builder "/root/traps_ws/install" "install"
 
 # install exec dependencies
 ARG EXEC_DEPENDS_INSTALL_SCRIPT=""
+RUN bash -c "${EXEC_DEPENDS_INSTALL_SCRIPT}"
 
 # entrypoint & cmd
 ENTRYPOINT ["/traps_entrypoint.sh"]
