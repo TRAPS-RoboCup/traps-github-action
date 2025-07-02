@@ -78,6 +78,13 @@ runs:
     with:
       path: src/${{ inputs.package-path }}
   
+  - name: Install VCS tool
+    run: |
+      curl -s https://packagecloud.io/install/repositories/dirk-thomas/vcstool/script.deb.sh | sudo bash
+      sudo apt-get update
+      sudo apt-get install python3-vcstool
+    shell: bash
+  
   - name: Vcs import
     id: vcs-import
     run: |
