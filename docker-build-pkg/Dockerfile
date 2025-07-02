@@ -28,7 +28,7 @@ COPY "${HOST_PACKAGES_PATH}" "src"
 
 # install build dependencies
 ARG BUILD_DEPENDS_INSTALL_SCRIPT=""
-RUN eval ${BUILD_DEPENDS_INSTALL_SCRIPT}
+RUN bash -c ${BUILD_DEPENDS_INSTALL_SCRIPT}
 
 # colcon build
 ARG PRE_BUILD_SCRIPT=". /opt/ros/${ROS_DISTRO}/setup.sh"
