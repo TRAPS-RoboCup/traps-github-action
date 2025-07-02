@@ -35,8 +35,8 @@ jobs:
             -t buildtool_export
             -t buildtool_export &&
             apt-get clean && rm -rf /var/lib/apt/lists/*
-          pre-build-script: ". /opt/ro/humble/setup.sh"
-          post-build-script: "rm -rf log"
+          pre-build-script: . /opt/ro/humble/setup.sh
+          post-build-script: rm -rf log
           exec-depends-install-script: >-
             apt-get update && 
             apt-get install -y --no-install-recommends python3-rosdep &&
