@@ -24,7 +24,16 @@ jobs:
           builder-base-image: ros:humble-ros-base
           executor-base-image: ros:humble-ros-base
           build-depends-install-script: >-
-            apt-get update
+            apt-get update &&
+            rosdep update &&
+            rosdep install
+            --from-paths src
+            -iy
+            -t build
+            -t buildtool_export
+            -t buildtool_export
+            -t buildtool_export &&
+            apt-get clean && rm -rf /var/lib/apt/lists/*
           pre-build-script: . /opt/ro/humble/setup.sh
           post-build-script: rm -rf log
           exec-depends-install-script: >-
