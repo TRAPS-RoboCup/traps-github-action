@@ -40,6 +40,7 @@ jobs:
           exec-depends-install-script: >-
             apt-get update && 
             apt-get install -y --no-install-recommends python3-rosdep2 &&
+            sudo rm -rf /etc/ros/rosdep/sources.list.d/* &&
             rosdep init && rosdep update --rosdistro=$ROS_DISTRO &&
             rosdep install
             --from-paths install/share
