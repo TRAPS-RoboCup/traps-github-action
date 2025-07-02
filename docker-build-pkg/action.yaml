@@ -161,11 +161,11 @@ runs:
       build-args: |
         BUILDER_BASE_IMAGE=${{ inputs.builder-base-image }}
         EXECUTOR_BASE_IMAGE=${{ inputs.executor-base-image }}
-        BUILD_DEPENDS_INSTALL_SCRIPT="${{ inputs.build-depends-install-script }}"
-        PRE_BUILD_SCRIPT="${{ inputs.pre-build-script }}"
-        BUILD_OPTIONS="${{ inputs.build-options }}"
-        POST_BUILD_SCRIPT="${{ inputs.post-build-script }}"
-        EXEC_DEPENDS_INSTALL_SCRIPT="${{ inputs.exec-depends-install-script }}"
+        BUILD_DEPENDS_INSTALL_SCRIPT=${{ inputs.build-depends-install-script }}
+        PRE_BUILD_SCRIPT=${{ inputs.pre-build-script }}
+        BUILD_OPTIONS=${{ inputs.build-options }}
+        POST_BUILD_SCRIPT=${{ inputs.post-build-script }}
+        EXEC_DEPENDS_INSTALL_SCRIPT=${{ inputs.exec-depends-install-script }}
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
       cache-from: type=gha
