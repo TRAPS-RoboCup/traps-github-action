@@ -28,7 +28,7 @@ COPY "${HOST_PACKAGES_PATH}" "src"
 
 # install build dependencies
 ARG BUILD_DEPENDS_INSTALL_SCRIPT=""
-RUN bash -c "${BUILD_DEPENDS_INSTALL_SCRIPT}"
+RUN eval ${BUILD_DEPENDS_INSTALL_SCRIPT}
 
 # colcon build
 ARG PRE_BUILD_SCRIPT=". /opt/ros/${ROS_DISTRO}/setup.sh"
@@ -36,9 +36,9 @@ ARG BUILD_OPTIONS="--merge-install --executor sequential --cmake-args -DCMAKE_BU
 ARG POST_BUILD_SCRIPT="rm -rf log"
 RUN <<EOF
   set -e
-  ${PRE_BUILD_SCRIPT}
+  eval ${PRE_BUILD_SCRIPT}
   MAKEFLAGS=-j$(nproc) colcon build ${BUILD_OPTIONS}
-  ${POST_BUILD_SCRIPT}
+  eval ${POST_BUILD_SCRIPT}
 EOF
 
 # set base image(executor)
@@ -65,7 +65,7 @@ COPY --from=builder "/root/traps_ws/install" "install"
 
 # install exec dependencies
 ARG EXEC_DEPENDS_INSTALL_SCRIPT=""
-RUN bash -c "${EXEC_DEPENDS_INSTALL_SCRIPT}"
+RUN eval ${EXEC_DEPENDS_INSTALL_SCRIPT}
 
 # entrypoint & cmd
 ENTRYPOINT ["/traps_entrypoint.sh"]
