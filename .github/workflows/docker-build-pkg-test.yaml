@@ -1,0 +1,51 @@
+name: Docker Build Package Test
+
+run-name: Docker Build Package Test:${{ github.ref_name }}(${{ github.event.head_commit.message }})
+
+on:
+  push:
+
+jobs:
+  colcon-test:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      packages: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: .traps-github-action
+      
+      - name: Docker Build Packages
+        uses: ./.traps-github-action/docker-build-pkg
+        with:
+          builder-base-image: ros:humble-ros-base
+          executor-base-image: ros:humble-ros-base
+          build-depends-install-script: >
+            apt-get update &&
+            rosdep update --rosdistro=$ROS_DISTRO &&
+            rosdep install
+              --from-paths src
+              --rosdistro=$ROS_DISTRO
+              -iy
+              -t build
+              -t buildtool_export
+              -t buildtool_export
+              -t buildtool_export &&
+            apt-get clean && rm -rf /var/lib/apt/lists/*
+          pre-build-script: ". /opt/ro/humble/setup.sh"
+          post-build-script: "rm -rf log"
+          exec-depends-install-script: >
+            apt-get update && 
+            apt-get install -y --no-install-recommends python3-rosdep &&
+            rosdep init && rosdep update --rosdistro=$ROS_DISTRO &&
+            rosdep install
+              --from-paths install/share
+              --rosdistro=$ROS_DISTRO
+              -iy
+              -t exec &&
+            SUDO_FORCE_REMOVE=yes apt-get autoremove -y --purge python3-rosdep &&
+            apt-get clean && rm -rf /var/lib/apt/lists/*
+          
