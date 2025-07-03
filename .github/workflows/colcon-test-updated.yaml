@@ -1,9 +1,16 @@
-name: Colcon Test test
+name: "Updated: colcon-test"
 
-run-name: Colcon Test test:${{ github.ref_name }}(${{ github.event.head_commit.message }})
+run-name: "Updated: colcon-test: ${{ github.ref_name }}(${{ github.event.head_commit.message }})"
 
 on:
   push:
+    paths:
+      - "colcon-test/**"
+      - ".github/workflows/colcon-test-updated.yaml"
+  pull_request:
+    paths:
+      - "colcon-test/**"
+      - ".github/workflows/colcon-test-updated.yaml"
 
 jobs:
   colcon-test:
