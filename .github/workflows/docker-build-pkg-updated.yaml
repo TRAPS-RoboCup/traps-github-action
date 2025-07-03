@@ -1,12 +1,19 @@
-name: Docker Build Package Test
+name: "Updated: Docker Build Package"
 
-run-name: Docker Build Package Test:${{ github.ref_name }}(${{ github.event.head_commit.message }})
+run-name: "Updated: Docker Build Package:${{ github.ref_name }}(${{ github.event.head_commit.message }})"
 
 on:
   push:
+    paths:
+      - ".traps-github-action/docker-build-pkg/**"
+      - ".github/workflows/docker-build-pkg-updated.yaml"
+  pull_request:
+    paths:
+      - ".traps-github-action/docker-build-pkg/**"
+      - ".github/workflows/docker-build-pkg-updated.yaml"
 
 jobs:
-  docker-build-pkg:
+  test-docker-build-pkg-action:
     runs-on: ubuntu-22.04
 
     permissions:
