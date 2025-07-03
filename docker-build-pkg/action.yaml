@@ -78,11 +78,19 @@ runs:
     with:
       path: src/${{ inputs.package-path }}
   
+  - name: Cache APT packages
+    uses: actions/cache@v4
+    with:
+      path: /var/cache/apt/archives
+      key: apt-cache-${{ runner.os }}
+      restore-keys: |
+        apt-cache-
+  
   - name: Install VCS tool
     run: |
       curl -s https://packagecloud.io/install/repositories/dirk-thomas/vcstool/script.deb.sh | sudo bash
       sudo apt-get update
-      sudo apt-get install python3-vcstool
+      sudo apt-get install -y --no-install-recommends python3-vcstool
     shell: bash
   
   - name: Vcs import
