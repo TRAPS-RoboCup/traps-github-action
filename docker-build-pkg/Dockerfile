@@ -50,8 +50,7 @@ WORKDIR "/root/traps_ws"
 # copy entrypoint script
 RUN <<EOF
   set -e
-  echo > /traps_entrypoint.sh
-  echo "#\!/bin/bash"                      >> /traps_entrypoint.sh
+  echo "#\!/bin/bash"                      >  /traps_entrypoint.sh
   echo "set -e"                            >> /traps_entrypoint.sh
   echo ""                                  >> /traps_entrypoint.sh
   echo "# source traps environment"        >> /traps_entrypoint.sh
