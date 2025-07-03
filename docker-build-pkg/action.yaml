@@ -156,8 +156,8 @@ runs:
       context: .
       file: ${{ github.action_path }}/Dockerfile
       push: true
-      tags: ${{ steps.set-docker-metadata-builder.outputs.tags }}
-      labels: ${{ steps.set-docker-metadata-builder.outputs.labels }}
+      tags: ${{ steps.set-docker-metadata-executor.outputs.tags }}
+      labels: ${{ steps.set-docker-metadata-executor.outputs.labels }}
       build-args: |
         BUILDER_BASE_IMAGE=${{ inputs.builder-base-image }}
         EXECUTOR_BASE_IMAGE=${{ inputs.executor-base-image }}
