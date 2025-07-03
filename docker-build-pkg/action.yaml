@@ -55,7 +55,7 @@ inputs:
   build-options:
     description: Options for build
     required: false
-    default: "--merge-install --executor sequential --cmake-args -DCMAKE-BUILD-TYPE=Release"
+    default: "--merge-install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release"
   post-build-script:
     description: Script to run after build
     required: false
