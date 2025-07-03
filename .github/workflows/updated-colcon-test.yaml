@@ -6,11 +6,11 @@ on:
   push:
     paths:
       - "colcon-test/**"
-      - ".github/workflows/colcon-test-updated.yaml"
+      - ".github/workflows/updated-colcon-test.yaml"
   pull_request:
     paths:
       - "colcon-test/**"
-      - ".github/workflows/colcon-test-updated.yaml"
+      - ".github/workflows/updated-colcon-test.yaml"
 
 jobs:
   test-colcon-test-action:

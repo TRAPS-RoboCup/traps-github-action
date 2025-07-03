@@ -4,6 +4,13 @@ run-name: "Updated: Docker Build ROS2 Package:${{ github.ref_name }}(${{ github.
 
 on:
   push:
+    paths:
+      - ".traps-github-action/docker-build-pkg/**"
+      - ".github/workflows/updated-docker-build-ros2-pkg.yaml"
+  pull_request:
+    paths:
+      - ".traps-github-action/docker-build-pkg/**"
+      - ".github/workflows/updated-docker-build-ros2-pkg.yaml"
 
 jobs:
   test-docker-build-ros2-pkg-action:

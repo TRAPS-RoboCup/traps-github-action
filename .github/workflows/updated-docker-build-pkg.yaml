@@ -6,11 +6,11 @@ on:
   push:
     paths:
       - ".traps-github-action/docker-build-pkg/**"
-      - ".github/workflows/docker-build-pkg-updated.yaml"
+      - ".github/workflows/updated-docker-build-pkg.yaml"
   pull_request:
     paths:
       - ".traps-github-action/docker-build-pkg/**"
-      - ".github/workflows/docker-build-pkg-updated.yaml"
+      - ".github/workflows/updated-docker-build-pkg.yaml"
 
 jobs:
   test-docker-build-pkg-action:
