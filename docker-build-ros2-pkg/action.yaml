@@ -20,10 +20,26 @@ inputs:
     description: GitHub Token
     required: false
     default: ${{ github.token }}
+  package-path:
+    description: Path of package
+    required: false
+    default: ${{ github.event.repository.name }}
+  repos-file:
+    description: Path of .repos file
+    required: false
+    default: "*.repos"
   platforms:
     description: Docker Image platform (comma separation)
     required: false
     default: linux/amd64, linux/arm64/v8
+  build-options:
+    description: Options for build
+    required: false
+    default: "--merge-install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release"
+  push:
+    description: Push Docker Image to ghcr.io
+    required: false
+    default: ${{ github.event_name != 'pull_request' }}
   rosdistro:
     description: ROS distribution (lowercase)
     required: false
@@ -32,111 +48,38 @@ inputs:
 runs:
   using: composite
   steps:
-  - name: Login to GitHub Container Registry
-    uses: docker/login-action@v3
-    with:
-      registry: ghcr.io
-      username: ${{ github.actor }}
-      password: ${{ github.token }}
-      logout: false
-
-  - name: Set up QEMU
-    uses: docker/setup-qemu-action@v3
-    with:
-      platforms: ${{ inputs.platforms }}
-
-  - name: Set up Docker Buildx
-    id: set-docker-builder
-    uses: docker/setup-buildx-action@v3
-    with:
-      platforms: ${{ inputs.platforms }}
-
-  - name: Make temp dir
-    id: make-temp-dir
-    run: echo "path=$(mktemp -d ${{ github.workspace }}/tmp.XXXXXX)" >> $GITHUB_OUTPUT
-    shell: bash
-  
-  - name: Checkout
-    uses: actions/checkout@v4
+  - name: Docker Build Package
+    uses: TRAPS-RoboCup/traps-github-action/docker-build-pkg@main
     with:
       token: ${{ inputs.token }}
-      path: ${{ steps.make-temp-dir.outputs.path }}
-      fetch-depth: 0
-
-  - name: Get depend chenged sha
-    working-directory: ${{ steps.make-temp-dir.outputs.path }}
-    id: get-depend-changed
-    run: echo "sha=$(git log -n 1 --pretty=format:"%H" -- $(git ls-files '*.repos' package.xml))" >> $GITHUB_OUTPUT
-    shell: bash
-
-  - name: Extract metadata (tags, labels) for Docker (depends only)
-    id: set-docker-metadata-depends-only
-    uses: docker/metadata-action@v5
-    with:
-      images: ghcr.io/${{ github.repository }}/depends_only
-
-  - name: Extract metadata (tags, labels) for Docker (depends only) (sha)
-    id: set-docker-metadata-depends-only-sha
-    uses: docker/metadata-action@v5
-    with:
-      images: ghcr.io/${{ github.repository }}/depends_only
-      tags: sha-${{ steps.get-depend-changed.outputs.sha }}
-
-  - name: Check depends-only image exist
-    id: check-depends-only-image
-    run: |
-      if docker manifest inspect ${{ steps.set-docker-metadata-depends-only-sha.outputs.tags }} > /dev/null 2>&1;
-      then
-        echo "exist=true" >> $GITHUB_OUTPUT
-      else
-        echo "exist=false" >> $GITHUB_OUTPUT
-      fi
-    shell: bash
-
-  - name: Build and push (depends only)
-    # if: ${{ steps.check-depends-only-image.outputs.exist != 'true' }}
-    uses: docker/build-push-action@v5
-    with:
-      context: ${{ github.action_path }}/depends-only
-      file: ${{ github.action_path }}/depends-only/Dockerfile
-      push: true
-      tags: |
-        ${{ steps.set-docker-metadata-depends-only.outputs.tags }}
-        ${{ steps.set-docker-metadata-depends-only-sha.outputs.tags }}
-      labels: |
-        ${{ steps.set-docker-metadata-depends-only.outputs.labels }}
-        ${{ steps.set-docker-metadata-depends-only-sha.outputs.labels }}
-      build-args: |
-        ROS_DISTRO=${{ inputs.rosdistro }}
-        GIT_REMOTE_URL=https://github.com/${{ github.repository }}.git
-        GIT_SHA=${{ steps.get-depend-changed.outputs.sha }}
-        PRE_IMPORT_SCRIPT=git config --global url.https://${{ inputs.token }}@github.com.insteadOf https://github.com
+      package-path: ${{ inputs.package-path }}
+      repos-file: ${{ inputs.repos-file }}
       platforms: ${{ inputs.platforms }}
-      builder: ${{ steps.set-docker-builder.outputs.name }}
-      cache-from: type=gha
-      cache-to: type=gha, mode=max
-
-  - name: Extract metadata (tags, labels) for Docker
-    id: set-docker-metadata
-    uses: docker/metadata-action@v5
-    with:
-      images: ghcr.io/${{ github.repository }}
-
-  - name: Build and push
-    uses: docker/build-push-action@v5
-    with:
-      context: ${{ github.action_path }}
-      file: ${{ github.action_path }}/Dockerfile
-      push: true
-      tags: ${{ steps.set-docker-metadata.outputs.tags }}
-      labels: ${{ steps.set-docker-metadata.outputs.labels }}
-      build-args: |
-        BASE_IMAGE=${{ steps.set-docker-metadata-depends-only-sha.outputs.tags }}
-        ENTRYPOINT_FILE=ros_ws_entrypoint.sh
-        GIT_REMOTE_URL=https://github.com/${{ github.repository }}.git
-        GIT_SHA=${{ github.sha }}
-        PRE_IMPORT_SCRIPT=git config --global url.https://${{ inputs.token }}@github.com.insteadOf https://github.com
-      platforms: ${{ inputs.platforms }}
-      builder: ${{ steps.set-docker-builder.outputs.name }}
-      cache-from: type=gha
-      cache-to: type=gha, mode=max
+      builder-base-image: ros:${{ inputs.rosdistro }}-ros-base
+      executor-base-image: ros:${{ inputs.rosdistro }}-ros-core
+      build-depends-install-script: >-
+        apt-get update &&
+        rosdep update &&
+        rosdep install
+        --from-paths src
+        -iy
+        -t buildtool_export
+        -t buildtool
+        -t build
+        -t build_export &&
+        apt-get clean && rm -rf /var/lib/apt/lists/*
+      pre-build-script: . /opt/ros/${{ inputs.rosdistro }}/setup.sh
+      build-options: ${{ inputs.build-options }}
+      post-build-script: rm -rf log
+      exec-depends-install-script: >-
+        apt-get update && 
+        apt-get install -y --no-install-recommends python3-rosdep2 &&
+        rosdep update --rosdistro=$ROS_DISTRO &&
+        rosdep install
+        --from-paths install/share
+        --rosdistro=$ROS_DISTRO
+        -iy
+        -t exec &&
+        SUDO_FORCE_REMOVE=yes apt-get autoremove -y --purge python3-rosdep2 &&
+        apt-get clean && rm -rf /var/lib/apt/lists/*
+      push: ${{ inputs.push }}
