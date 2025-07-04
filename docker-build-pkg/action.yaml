@@ -68,6 +68,14 @@ inputs:
     #   apt-get update &&
     #   apt-get install -y --no-install-recommends ...  &&
     #   apt-get clean && rm -rf /var/lib/apt/lists/*
+  test-depends-install-script:
+    description: Script to install execute dependencies
+    required: false
+    default: ""
+    # default: >
+    #   apt-get update &&
+    #   apt-get install -y --no-install-recommends ...  &&
+    #   apt-get clean && rm -rf /var/lib/apt/lists/*
   push:
     description: Push Docker Image to ghcr.io
     required: false
@@ -153,6 +161,7 @@ runs:
         BUILD_OPTIONS=${{ inputs.build-options }}
         POST_BUILD_SCRIPT=${{ inputs.post-build-script }}
         EXEC_DEPENDS_INSTALL_SCRIPT=${{ inputs.exec-depends-install-script }}
+        TEST_DEPENDS_INSTALL_SCRIPT=${{ inputs.test-depends-install-script }}
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
       cache-from: type=gha
@@ -183,6 +192,7 @@ runs:
         BUILD_OPTIONS=${{ inputs.build-options }}
         POST_BUILD_SCRIPT=${{ inputs.post-build-script }}
         EXEC_DEPENDS_INSTALL_SCRIPT=${{ inputs.exec-depends-install-script }}
+        TEST_DEPENDS_INSTALL_SCRIPT=${{ inputs.test-depends-install-script }}
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
       cache-from: type=gha
@@ -204,6 +214,7 @@ runs:
         BUILD_OPTIONS=${{ inputs.build-options }}
         POST_BUILD_SCRIPT=${{ inputs.post-build-script }}
         EXEC_DEPENDS_INSTALL_SCRIPT=${{ inputs.exec-depends-install-script }}
+        TEST_DEPENDS_INSTALL_SCRIPT=${{ inputs.test-depends-install-script }}
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
       cache-from: type=gha

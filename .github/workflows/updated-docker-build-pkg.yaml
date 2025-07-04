@@ -56,4 +56,12 @@ jobs:
             -t exec &&
             SUDO_FORCE_REMOVE=yes apt-get autoremove -y --purge python3-rosdep2 &&
             apt-get clean && rm -rf /var/lib/apt/lists/*
+          test-depends-install-script: >-
+            apt-get update &&
+            rosdep update &&
+            rosdep install
+            --from-paths src
+            -iy
+            -t test &&
+            apt-get clean && rm -rf /var/lib/apt/lists/*
           

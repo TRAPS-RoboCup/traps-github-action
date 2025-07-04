@@ -76,6 +76,10 @@ FROM builder AS tester
 # workdir
 WORKDIR "/root/traps_ws"
 
+# install build dependencies
+ARG TEST_DEPENDS_INSTALL_SCRIPT=""
+RUN bash -c "${TEST_DEPENDS_INSTALL_SCRIPT}"
+
 # colcon test
 RUN <<EOF
   colcon test
