@@ -35,7 +35,7 @@ inputs:
   build-options:
     description: Options for build
     required: false
-    default: "--merge-install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release"
+    default: "--executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release"
   push:
     description: Push Docker Image to ghcr.io
     required: false
@@ -76,7 +76,7 @@ runs:
         apt-get install -y --no-install-recommends python3-rosdep2 &&
         rosdep update --rosdistro=$ROS_DISTRO &&
         rosdep install
-        --from-paths install/share
+        --from-paths install/*/share
         --rosdistro=$ROS_DISTRO
         -iy
         -t exec &&
