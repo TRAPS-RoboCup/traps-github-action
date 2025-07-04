@@ -82,6 +82,7 @@ RUN bash -c "${TEST_DEPENDS_INSTALL_SCRIPT}"
 
 # colcon test
 RUN <<EOF
+  . /opt/ros/${ROS_DISTRO}/setup.sh
   colcon test
   colcon test-result --verbose
 EOF
