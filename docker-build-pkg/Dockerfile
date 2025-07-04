@@ -69,3 +69,15 @@ RUN bash -c "${EXEC_DEPENDS_INSTALL_SCRIPT}"
 # entrypoint & cmd
 ENTRYPOINT ["/traps_entrypoint.sh"]
 CMD ["bash"]
+
+# set base image(tester)
+FROM builder AS tester
+
+# workdir
+WORKDIR "/root/traps_ws"
+
+# colcon test
+RUN <<EOF
+  colcon test
+  colcon test-result --verbose
+EOF
