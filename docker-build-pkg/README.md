@@ -39,6 +39,10 @@ jobs:
         #     apt-get update &&
         #     apt-get install -y --no-install-recommends ...  &&
         #     apt-get clean && rm -rf /var/lib/apt/lists/*
+        #   test-depends-install-script: >
+        #     apt-get update &&
+        #     apt-get install -y --no-install-recommends ...  &&
+        #     apt-get clean && rm -rf /var/lib/apt/lists/*
         #   push: true
         #   test: true
 ```
