@@ -76,7 +76,7 @@ runs:
         apt-get install -y --no-install-recommends python3-rosdep2 &&
         rosdep update --rosdistro=$ROS_DISTRO &&
         rosdep install
-        --from-paths install/share
+        --from-paths install/*/share
         --rosdistro=$ROS_DISTRO
         -iy
         -t exec &&
