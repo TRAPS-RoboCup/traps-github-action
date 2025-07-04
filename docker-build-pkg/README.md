@@ -33,7 +33,7 @@ jobs:
         #     apt-get install -y --no-install-recommends ...  &&
         #     apt-get clean && rm -rf /var/lib/apt/lists/*
         #   pre-build-script: ""
-        #   build-options: "--merge-install --executor sequential --cmake-args -DCMAKE-BUILD-TYPE=Release"
+        #   build-options: "--executor sequential --cmake-args -DCMAKE-BUILD-TYPE=Release"
         #   post-build-script: ""
         #   exec-depends-install-script: >
         #     apt-get update &&

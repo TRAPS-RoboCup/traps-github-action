@@ -35,7 +35,7 @@ inputs:
   build-options:
     description: Options for build
     required: false
-    default: "--merge-install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release"
+    default: "--executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release"
   push:
     description: Push Docker Image to ghcr.io
     required: false

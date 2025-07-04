@@ -27,7 +27,7 @@ jobs:
           # package-path: ${{ github.event.repository.name }}
           # repos-file: *.repos
           platforms: linux/amd64, linux/arm64/v8
-          # build-options: "--merge-install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release"
+          # build-options: "--executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release"
           push: ${{ github.event_name != 'pull_request' }}
           rosdistro: humble
 ```
