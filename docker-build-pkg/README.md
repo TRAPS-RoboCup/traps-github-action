@@ -40,4 +40,5 @@ jobs:
         #     apt-get install -y --no-install-recommends ...  &&
         #     apt-get clean && rm -rf /var/lib/apt/lists/*
         #   push: true
+        #   test: true
 ```
