@@ -54,7 +54,7 @@ RUN <<EOF
   echo "set -e"                            >> /traps_entrypoint.sh
   echo ""                                  >> /traps_entrypoint.sh
   echo "# source traps environment"        >> /traps_entrypoint.sh
-  echo ". /opt/ros/${ROS_DISTRO}/setup.sh" >> /traps_entrypoint.sh
+  echo ". /root/traps_ws/install/setup.sh" >> /traps_entrypoint.sh
   echo "exec \"\$@\""                      >> /traps_entrypoint.sh
   chmod +x /traps_entrypoint.sh
 EOF
