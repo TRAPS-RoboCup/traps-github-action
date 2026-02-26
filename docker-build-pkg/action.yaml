@@ -135,6 +135,7 @@ runs:
       registry: ghcr.io
       username: ${{ github.actor }}
       password: ${{ inputs.registry-token || inputs.token }}
+
       logout: false
 
   - name: Set up QEMU
