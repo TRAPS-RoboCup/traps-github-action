@@ -20,6 +20,12 @@ inputs:
     description: GitHub Token
     required: false
     default: ${{ github.token }}
+  registry-token:
+    description: >-
+      Token for GHCR login. Falls back to `token` if not set.
+      Use GITHUB_TOKEN here to auto-link packages to the repository.
+    required: false
+    default: ""
   package-path:
     description: Path of package
     required: false
@@ -128,7 +134,7 @@ runs:
     with:
       registry: ghcr.io
       username: ${{ github.actor }}
-      password: ${{ inputs.token }}
+      password: ${{ inputs.registry-token || inputs.token }}
       logout: false
 
   - name: Set up QEMU
