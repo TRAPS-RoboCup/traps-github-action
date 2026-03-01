@@ -50,6 +50,16 @@ inputs:
     description: ROS distribution (lowercase)
     required: false
     default: humble
+  test:
+    description: Run tests after build
+    required: false
+    default: true
+  cache-type:
+    description: >-
+      Cache backend for Docker builds.
+      'gha' uses GitHub Actions cache. 'registry' uses GHCR.
+    required: false
+    default: gha
 
 runs:
   using: composite
@@ -97,4 +107,6 @@ runs:
         -iy
         -t test &&
         apt-get clean && rm -rf /var/lib/apt/lists/*
+      test: ${{ inputs.test }}
+      cache-type: ${{ inputs.cache-type }}
       push: ${{ inputs.push }}
