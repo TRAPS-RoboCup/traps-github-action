@@ -90,7 +90,13 @@ inputs:
     description: Run tests after build
     required: false
     default: true
-  
+  cache-type:
+    description: >-
+      Cache backend for Docker builds.
+      'gha' uses GitHub Actions cache (10 GB limit, shared across targets).
+      'registry' uses GHCR as cache backend (no size limit).
+    required: false
+    default: gha
 
 runs:
   using: composite
@@ -149,6 +155,24 @@ runs:
     with:
       platforms: ${{ inputs.platforms }}
 
+  - name: Compute cache parameters
+    id: cache-params
+    shell: bash
+    run: |
+      REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+      if [ "${{ inputs.cache-type }}" = "registry" ]; then
+        for TARGET in builder executor tester; do
+          REF="ghcr.io/${REPO_LOWER}/buildcache-${TARGET}"
+          echo "${TARGET}-cache-from=type=registry,ref=${REF}:latest" >> "$GITHUB_OUTPUT"
+          echo "${TARGET}-cache-to=type=registry,ref=${REF}:latest,mode=max" >> "$GITHUB_OUTPUT"
+        done
+      else
+        for TARGET in builder executor tester; do
+          echo "${TARGET}-cache-from=type=gha,scope=${TARGET}" >> "$GITHUB_OUTPUT"
+          echo "${TARGET}-cache-to=type=gha,scope=${TARGET},mode=max" >> "$GITHUB_OUTPUT"
+        done
+      fi
+
   - name: Extract metadata (tags, labels) for Docker (builder)
     id: set-docker-metadata-builder
     uses: docker/metadata-action@v5
@@ -175,8 +199,8 @@ runs:
         TEST_DEPENDS_INSTALL_SCRIPT=${{ inputs.test-depends-install-script }}
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
-      cache-from: type=gha
-      cache-to: type=gha, mode=max
+      cache-from: ${{ steps.cache-params.outputs.builder-cache-from }}
+      cache-to: ${{ steps.cache-params.outputs.builder-cache-to }}
 
   - name: Extract metadata (tags, labels) for Docker (exdecutor)
     id: set-docker-metadata-executor
@@ -206,8 +230,8 @@ runs:
         TEST_DEPENDS_INSTALL_SCRIPT=${{ inputs.test-depends-install-script }}
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
-      cache-from: type=gha
-      cache-to: type=gha, mode=max
+      cache-from: ${{ steps.cache-params.outputs.executor-cache-from }}
+      cache-to: ${{ steps.cache-params.outputs.executor-cache-to }}
 
   - name: Build (tester)
     if: ${{ inputs.test }}
@@ -228,5 +252,5 @@ runs:
         TEST_DEPENDS_INSTALL_SCRIPT=${{ inputs.test-depends-install-script }}
       platforms: ${{ inputs.platforms }}
       builder: ${{ steps.set-docker-builder.outputs.name }}
-      cache-from: type=gha
-      cache-to: type=gha, mode=max
+      cache-from: ${{ steps.cache-params.outputs.tester-cache-from }}
+      cache-to: ${{ steps.cache-params.outputs.tester-cache-to }}
