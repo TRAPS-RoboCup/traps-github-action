@@ -138,11 +138,11 @@ runs:
   - name: Prepare package metadata for dependency cache
     run: |
       mkdir -p .pkg_meta
-      for d in src/*/; do
-        [ -f "${d}package.xml" ] || continue
-        pkg="$(basename "$d")"
-        mkdir -p ".pkg_meta/${pkg}"
-        cp "${d}package.xml" ".pkg_meta/${pkg}/package.xml"
+      find src -name package.xml -type f | while read -r pxml; do
+        rel="${pxml#src/}"
+        dir="$(dirname "$rel")"
+        mkdir -p ".pkg_meta/${dir}"
+        cp "$pxml" ".pkg_meta/${dir}/package.xml"
       done
     shell: bash
 
