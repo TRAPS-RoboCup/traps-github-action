@@ -23,24 +23,14 @@ FROM ${BUILDER_BASE_IMAGE} AS builder
 WORKDIR "/root/traps_ws"
 
 # copy package.xml only (changes infrequently, enables dependency cache)
-ARG HOST_PACKAGES_PATH="src"
-COPY "${HOST_PACKAGES_PATH}"/*/package.xml /tmp/pkg_meta/
-RUN <<EOF
-  set -e
-  cd /tmp/pkg_meta
-  for f in *.xml; do
-    [ -f "$f" ] || continue
-    pkg="${f%.xml}"
-    mkdir -p "/root/traps_ws/src/${pkg}"
-    cp "$f" "/root/traps_ws/src/${pkg}/package.xml"
-  done
-EOF
+COPY .pkg_meta/ src/
 
 # install build dependencies (cached unless package.xml changes)
 ARG BUILD_DEPENDS_INSTALL_SCRIPT=""
 RUN bash -c "${BUILD_DEPENDS_INSTALL_SCRIPT}"
 
 # copy full source (only build layer invalidated on source changes)
+ARG HOST_PACKAGES_PATH="src"
 COPY "${HOST_PACKAGES_PATH}" "src"
 
 # colcon build
