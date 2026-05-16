@@ -43,21 +43,25 @@ runs:
       password: ${{ inputs.token }}
       logout: false
 
+  - name: Normalize repository name
+    shell: bash
+    run: echo "repository_lowercase=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
   - name: Extract metadata (tags, labels) for Docker
     if : ${{ inputs.target != 'executor' }}
     id: set-docker-metadata
     uses: docker/metadata-action@v5
     with:
-      images: ghcr.io/${{ toLower(github.repository) }}/${{ inputs.target }}
-  
+      images: ghcr.io/${{ env.repository_lowercase }}/${{ inputs.target }}
+
   - name: Extract metadata (tags, labels) for Docker (executor)
     if : ${{ inputs.target == 'executor' }}
     id: set-docker-metadata-executor
     uses: docker/metadata-action@v5
     with:
       images: |
-        ghcr.io/${{ toLower(github.repository) }}/executor
-        ghcr.io/${{ toLower(github.repository) }}
+        ghcr.io/${{ env.repository_lowercase }}/executor
+        ghcr.io/${{ env.repository_lowercase }}
 
   - name: Set up Docker Buildx
     id: set-docker-builder
@@ -73,5 +77,5 @@ runs:
       push: ${{ inputs.push }}
       tags: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.tags || steps.set-docker-metadata.outputs.tags }}
       labels: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.labels || steps.set-docker-metadata.outputs.labels }}
-      cache-from: type=registry,ref=ghcr.io/${{ toLower(github.repository) }}/buildcache:${{ github.ref }}
-      cache-to: type=registry,ref=ghcr.io/${{ toLower(github.repository) }}/buildcache:${{ github.ref }},mode=max
+      cache-from: type=registry,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ github.ref }}
+      cache-to: type=registry,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ github.ref }},mode=max
