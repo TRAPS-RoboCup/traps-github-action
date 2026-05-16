@@ -16,97 +16,52 @@ name: docker-build-ros2-pkg
 description: Build Docker Image for ROS2 package and push to ghcr.io
 
 inputs:
-  token:
-    description: GitHub Token
-    required: false
-    default: ${{ github.token }}
-  registry-token:
+  target:
     description: >-
-      Token for GHCR login. Falls back to `token` if not set.
-      Use GITHUB_TOKEN here to auto-link packages to the repository.
+      The target stage to build.
     required: false
-    default: ""
-  package-path:
-    description: Path of package
-    required: false
-    default: ${{ github.event.repository.name }}
-  repos-file:
-    description: Path of .repos file
-    required: false
-    default: "*.repos"
-  platforms:
-    description: Docker Image platform (comma separation)
-    required: false
-    default: linux/amd64, linux/arm64/v8
-  build-options:
-    description: Options for build
-    required: false
-    default: "--executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release"
+    default: executor
   push:
-    description: Push Docker Image to ghcr.io
-    required: false
-    default: ${{ github.event_name != 'pull_request' }}
-  rosdistro:
-    description: ROS distribution (lowercase)
-    required: false
-    default: humble
-  test:
-    description: Run tests after build
+    description: >-
+      Whether to push the built image to the registry.
     required: false
     default: true
-  cache-type:
-    description: >-
-      Cache backend for Docker builds.
-      'gha' uses GitHub Actions cache. 'registry' uses GHCR.
-    required: false
-    default: gha
 
 runs:
   using: composite
   steps:
-  - name: Docker Build Package
-    uses: TRAPS-RoboCup/traps-github-action/docker-build-pkg@main
+  - name: Login to GitHub Container Registry
+    uses: docker/login-action@v3
     with:
-      token: ${{ inputs.token }}
-      registry-token: ${{ inputs.registry-token }}
-      package-path: ${{ inputs.package-path }}
-      repos-file: ${{ inputs.repos-file }}
-      platforms: ${{ inputs.platforms }}
-      builder-base-image: ros:${{ inputs.rosdistro }}-ros-base
-      executor-base-image: ros:${{ inputs.rosdistro }}-ros-core
-      build-depends-install-script: >-
-        apt-get update &&
-        rosdep update &&
-        rosdep install
-        --from-paths src
-        -iy
-        -t buildtool_export
-        -t buildtool
-        -t build
-        -t build_export &&
-        apt-get clean && rm -rf /var/lib/apt/lists/*
-      pre-build-script: . /opt/ros/${{ inputs.rosdistro }}/setup.sh
-      build-options: ${{ inputs.build-options }}
-      post-build-script: rm -rf log
-      exec-depends-install-script: >-
-        apt-get update && 
-        apt-get install -y --no-install-recommends python3-rosdep2 &&
-        rosdep update --rosdistro=$ROS_DISTRO &&
-        rosdep install
-        --from-paths install/*/share
-        --rosdistro=$ROS_DISTRO
-        -iy
-        -t exec &&
-        SUDO_FORCE_REMOVE=yes apt-get autoremove -y --purge python3-rosdep2 &&
-        apt-get clean && rm -rf /var/lib/apt/lists/*
-      test-depends-install-script: >-
-        apt-get update &&
-        rosdep update &&
-        rosdep install
-        --from-paths src
-        -iy
-        -t test &&
-        apt-get clean && rm -rf /var/lib/apt/lists/*
-      test: ${{ inputs.test }}
-      cache-type: ${{ inputs.cache-type }}
+      registry: ghcr.io
+      username: ${{ github.actor }}
+      password: ${{ inputs.registry-token || inputs.token }}
+      logout: false
+
+  - name: Extract metadata (tags, labels) for Docker
+    if : ${{ inputs.target != 'executor' }}
+    id: set-docker-metadata
+    uses: docker/metadata-action@v5
+    with:
+      images: ghcr.io/${{ github.repository }}/${{ inputs.target }}
+  
+  - name: Extract metadata (tags, labels) for Docker (executor)
+    if : ${{ inputs.target == 'executor' }}
+    id: set-docker-metadata
+    uses: docker/metadata-action@v5
+    with:
+      images: |
+        ghcr.io/${{ github.repository }}/executor
+        ghcr.io/${{ github.repository }}
+
+  - name: Build and push (${{ inputs.target }})
+    uses: docker/build-push-action@v5
+    with:
+      target: ${{ inputs.target }}
+      context: ${{ github.workspace }}
+      file: ${{ github.action_path }}/Dockerfile
       push: ${{ inputs.push }}
+      tags: ${{ steps.set-docker-metadata.outputs.tags }}
+      labels: ${{ steps.set-docker-metadata.outputs.labels }}
+      cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/buildcache:${{ github.ref }}
+      cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/buildcache:${{ github.ref }},mode=max

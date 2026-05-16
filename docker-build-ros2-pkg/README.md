@@ -19,15 +19,16 @@ jobs:
       contents: read
 
     steps:
+    steps:
+      - name: Clone packages to src
+        uses: TRAPS-RoboCup/traps-github-action/clone-packages-to-src@main
+        # with:
+        #   token: ${{ github.token }}
+        #   repos-file: "*.repos"
+
       - name: Build and push
         uses: TRAPS-RoboCup/traps-github-action/docker-build-ros2-pkg@main
         with:
-          token: $${{ github.token }}
-          # token: $${{ secrets.PAT }} # if you use private repos
-          # package-path: ${{ github.event.repository.name }}
-          # repos-file: *.repos
-          platforms: linux/amd64, linux/arm64/v8
-          # build-options: "--executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release"
-          push: ${{ github.event_name != 'pull_request' }}
-          rosdistro: humble
+          target: executor # builder, build-cache, test-cache
+          push: true
 ```

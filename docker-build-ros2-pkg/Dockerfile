@@ -43,12 +43,13 @@ ARG ROS_DISTRO="humble"
 
 # ビルド
 RUN --mount=type=bind,source=./src,target=/root/ros2_ws/src <<EOF
+  set -e
   . /opt/ros/${ROS_DISTRO}/setup.sh
   colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 EOF
 
-# serice
-FROM  ros:humble-ros-core@sha256:4cbeac7831833f8d6fa4cb1f9f8e22c188853468e76b3d5b9cc58148a8c8f64b AS srv
+# executor
+FROM ros:humble-ros-core@sha256:4cbeac7831833f8d6fa4cb1f9f8e22c188853468e76b3d5b9cc58148a8c8f64b AS exdecutor
 
 # ワークスペスのディレクトリ名と必須aptパッケージの名前
 ARG INSTALL_DIR="/root/ros2_ws/install"
@@ -93,3 +94,22 @@ ENTRYPOINT ["/ros_ws_entrypoint.sh"]
 
 # 実行時のデフォルトのコマンド
 CMD ["bash"]
+
+# test
+FROM build-cache AS test-cache
+
+# 依存関係のインストール
+RUN --mount=type=bind,source=./src,target=/root/ros2_ws/src \
+  rosdep install \
+    --from-paths src \
+    -iy \
+    --rosdistro ${ROS_DISTRO} \
+    -t test
+
+# テスト
+RUN --mount=type=bind,source=./src,target=/root/ros2_ws/src <<EOF
+  set -e
+  . /opt/ros/${ROS_DISTRO}/setup.sh
+  colcon test
+  colcon test-result --all --verbose
+EOF
