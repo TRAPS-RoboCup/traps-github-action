@@ -43,9 +43,13 @@ runs:
       password: ${{ inputs.token }}
       logout: false
 
-  - name: Normalize repository name
+  - name: Normalize environment variables
     shell: bash
-    run: echo "repository_lowercase=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+    run: |
+      echo "repository_lowercase=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+      ref_name="${{ github.ref }}"
+      ref_name="${ref_name//\//-}"
+      echo "ref_sanitized=$ref_name" >> "$GITHUB_ENV"
 
   - name: Extract metadata (tags, labels) for Docker
     if : ${{ inputs.target != 'executor' }}
@@ -77,5 +81,5 @@ runs:
       push: ${{ inputs.push }}
       tags: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.tags || steps.set-docker-metadata.outputs.tags }}
       labels: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.labels || steps.set-docker-metadata.outputs.labels }}
-      cache-from: type=registry,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ github.ref_name }}
-      cache-to: type=registry,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ github.ref_name }},mode=max
+      cache-from: type=registry,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ env.ref_sanitized }}
+      cache-to: type=registry,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ env.ref_sanitized }},mode=max
