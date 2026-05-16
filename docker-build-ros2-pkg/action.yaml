@@ -21,6 +21,16 @@ inputs:
       The target stage to build.
     required: false
     default: executor
+  platforms:
+    description: >-
+      Target platforms to build (comma or newline separated). Leave empty for native.
+    required: false
+    default: ""
+  tag_suffix:
+    description: >-
+      Suffix to append to all tags (e.g. -amd64, -arm64).
+    required: false
+    default: ""
   push:
     description: >-
       Whether to push the built image to the registry.
@@ -57,6 +67,8 @@ runs:
     uses: docker/metadata-action@v5
     with:
       images: ghcr.io/${{ env.repository_lowercase }}/${{ inputs.target }}
+      flavor: |
+        suffix=${{ inputs.tag_suffix }}
 
   - name: Extract metadata (tags, labels) for Docker (executor)
     if : ${{ inputs.target == 'executor' }}
@@ -66,6 +78,8 @@ runs:
       images: |
         ghcr.io/${{ env.repository_lowercase }}/executor
         ghcr.io/${{ env.repository_lowercase }}
+      flavor: |
+        suffix=${{ inputs.tag_suffix }}
 
   - name: Set up Docker Buildx
     id: set-docker-builder
@@ -81,5 +95,6 @@ runs:
       push: ${{ inputs.push }}
       tags: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.tags || steps.set-docker-metadata.outputs.tags }}
       labels: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.labels || steps.set-docker-metadata.outputs.labels }}
+      platforms: ${{ inputs.platforms }}
       cache-from: type=registry,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ env.ref_sanitized }}
       cache-to: type=registry,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ env.ref_sanitized }},mode=max
