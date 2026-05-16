@@ -27,27 +27,7 @@ inputs:
 
 runs:
   using: docker
-  image: ros:humble-ros-base@sha256:5417e56962ff6e15d4cf9b2f78a71a78f3901f47cd78696b575b7eecdb54eb78
-  steps:
-  - name: Set up GitHub Token for cloning private repositories
-    shell: bash
-    run:  git config --global url."https://${{ inputs.token }}@github.com/".insteadOf "https://github.com/"
-
-  - name: Create src directory
-    shell: bash
-    run:  mkdir -p ${{ github.workspace }}/src/${{ github.event.repository.name }}
-
-  - name: Clone packages to src
-    shell: bash
-    working-directory: ${{ github.workspace }}/src/${{ github.event.repository.name }}
-    run: |
-      git init
-      git remote add origin ${{ github.event.repository.clone_url }}
-      git fetch --depth 1 origin ${{ github.event.ref }}
-      git checkout FETCH_HEAD
-      git submodule update --init --recursive --depth 1
-
-  - name: vcs import
-    shell: bash
-    working-directory: ${{ github.workspace }}
-    run: vcs import --shallow --recursive src < src/${{ github.event.repository.name }}/${{ inputs.repos-file }}
+  image: Dockerfile
+  env:
+    INPUT_TOKEN: ${{ inputs.token }}
+    INPUT_REPOS_FILE: ${{ inputs.repos-file }}
