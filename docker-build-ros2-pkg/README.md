@@ -26,6 +26,11 @@ jobs:
         #   token: ${{ github.token }}
         #   repos-file: "*.repos"
 
+      - name: Add .dockerignore
+        uses: TRAPS-RoboCup/traps-github-action/add-ros2-docker-ignore@main
+        # with:
+        #   working-directory: "${{ github.workspace }}"
+
       - name: Build and push
         uses: TRAPS-RoboCup/traps-github-action/docker-build-ros2-pkg@main
         with:
