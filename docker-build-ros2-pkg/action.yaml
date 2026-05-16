@@ -26,6 +26,11 @@ inputs:
       Whether to push the built image to the registry.
     required: false
     default: true
+  token:
+    description: >-
+      GitHub Token with permissions to push to the registry.
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: composite
@@ -35,7 +40,7 @@ runs:
     with:
       registry: ghcr.io
       username: ${{ github.actor }}
-      password: ${{ inputs.registry-token || inputs.token }}
+      password: ${{ inputs.token }}
       logout: false
 
   - name: Extract metadata (tags, labels) for Docker
