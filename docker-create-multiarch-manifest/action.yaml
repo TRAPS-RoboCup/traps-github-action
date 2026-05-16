@@ -1,0 +1,88 @@
+# Copyright 2024 TRAPS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: docker-create-multiarch-manifest
+description: Create multi-arch manifest list for ROS2 package images
+
+inputs:
+  target:
+    description: >-
+      The target stage to build.
+    required: false
+    default: executor
+  suffixes:
+    description: >-
+      Comma-separated tag suffixes to merge (e.g. -amd64,-arm64).
+    required: false
+    default: "-amd64,-arm64"
+  token:
+    description: >-
+      GitHub Token with permissions to push to the registry.
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+  - name: Login to GitHub Container Registry
+    uses: docker/login-action@v3
+    with:
+      registry: ghcr.io
+      username: ${{ github.actor }}
+      password: ${{ inputs.token }}
+      logout: false
+
+  - name: Normalize environment variables
+    shell: bash
+    run: |
+      echo "repository_lowercase=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+      ref_name="${{ github.ref }}"
+      ref_name="${ref_name//\//-}"
+      echo "ref_sanitized=$ref_name" >> "$GITHUB_ENV"
+
+  - name: Extract metadata (tags, labels) for Docker
+    if : ${{ inputs.target != 'executor' }}
+    id: set-docker-metadata
+    uses: docker/metadata-action@v5
+    with:
+      images: ghcr.io/${{ env.repository_lowercase }}/${{ inputs.target }}
+
+  - name: Extract metadata (tags, labels) for Docker (executor)
+    if : ${{ inputs.target == 'executor' }}
+    id: set-docker-metadata-executor
+    uses: docker/metadata-action@v5
+    with:
+      images: |
+        ghcr.io/${{ env.repository_lowercase }}/executor
+        ghcr.io/${{ env.repository_lowercase }}
+
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v3
+
+  - name: Create multi-arch manifest
+    shell: bash
+    run: |
+      set -euo pipefail
+      tags="${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.tags || steps.set-docker-metadata.outputs.tags }}"
+      suffixes="${{ inputs.suffixes }}"
+      IFS=',' read -ra suffix_arr <<< "$suffixes"
+      while IFS= read -r tag; do
+        [[ -z "$tag" ]] && continue
+        args=()
+        for suf in "${suffix_arr[@]}"; do
+          [[ -z "$suf" ]] && continue
+          args+=("${tag}${suf}")
+        done
+        docker buildx imagetools create -t "$tag" "${args[@]}"
+      done <<< "$tags"
