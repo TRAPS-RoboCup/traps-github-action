@@ -49,7 +49,7 @@ RUN --mount=type=bind,source=./src,target=/root/ros2_ws/src <<EOF
 EOF
 
 # executor
-FROM ros:humble-ros-core@sha256:4cbeac7831833f8d6fa4cb1f9f8e22c188853468e76b3d5b9cc58148a8c8f64b AS exdecutor
+FROM ros:humble-ros-core@sha256:4cbeac7831833f8d6fa4cb1f9f8e22c188853468e76b3d5b9cc58148a8c8f64b AS executor
 
 # ワークスペスのディレクトリ名と必須aptパッケージの名前
 ARG INSTALL_DIR="/root/ros2_ws/install"
