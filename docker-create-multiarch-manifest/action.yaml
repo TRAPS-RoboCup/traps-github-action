@@ -1,19 +1,19 @@
 # Copyright 2024 TRAPS
-
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: docker-build-ros2-pkg
-description: Build Docker Image for ROS2 package and push to ghcr.io
+name: docker-create-multiarch-manifest
+description: Create multi-arch manifest list for ROS2 package images
 
 inputs:
   target:
@@ -21,21 +21,11 @@ inputs:
       The target stage to build.
     required: false
     default: executor
-  platforms:
+  suffixes:
     description: >-
-      Target platforms to build (comma or newline separated). Leave empty for native.
+      Comma-separated tag suffixes to merge (e.g. -amd64,-arm64).
     required: false
-    default: ""
-  tag_suffix:
-    description: >-
-      Suffix to append to all tags (e.g. -amd64, -arm64).
-    required: false
-    default: ""
-  push:
-    description: >-
-      Whether to push the built image to the registry.
-    required: false
-    default: true
+    default: "-amd64,-arm64"
   token:
     description: >-
       GitHub Token with permissions to push to the registry.
@@ -67,8 +57,6 @@ runs:
     uses: docker/metadata-action@v5
     with:
       images: ghcr.io/${{ env.repository_lowercase }}/${{ inputs.target }}
-      flavor: |
-        suffix=${{ inputs.tag_suffix }}
 
   - name: Extract metadata (tags, labels) for Docker (executor)
     if : ${{ inputs.target == 'executor' }}
@@ -78,23 +66,23 @@ runs:
       images: |
         ghcr.io/${{ env.repository_lowercase }}/executor
         ghcr.io/${{ env.repository_lowercase }}
-      flavor: |
-        suffix=${{ inputs.tag_suffix }}
 
   - name: Set up Docker Buildx
-    id: set-docker-builder
     uses: docker/setup-buildx-action@v3
 
-  - name: Build and push (${{ inputs.target }})
-    uses: docker/build-push-action@v5
-    with:
-      target: ${{ inputs.target }}
-      context: ${{ github.workspace }}
-      file: ${{ github.action_path }}/Dockerfile
-      builder: ${{ steps.set-docker-builder.outputs.name }}
-      push: ${{ inputs.push }}
-      tags: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.tags || steps.set-docker-metadata.outputs.tags }}
-      labels: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.labels || steps.set-docker-metadata.outputs.labels }}
-      platforms: ${{ inputs.platforms }}
-      cache-from: type=gha,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ env.ref_sanitized }}${{ inputs.tag_suffix }}
-      cache-to: type=gha,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ env.ref_sanitized }}${{ inputs.tag_suffix }},mode=max
+  - name: Create multi-arch manifest
+    shell: bash
+    run: |
+      set -euo pipefail
+      tags="${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.tags || steps.set-docker-metadata.outputs.tags }}"
+      suffixes="${{ inputs.suffixes }}"
+      IFS=',' read -ra suffix_arr <<< "$suffixes"
+      while IFS= read -r tag; do
+        [[ -z "$tag" ]] && continue
+        args=()
+        for suf in "${suffix_arr[@]}"; do
+          [[ -z "$suf" ]] && continue
+          args+=("${tag}${suf}")
+        done
+        docker buildx imagetools create -t "$tag" "${args[@]}"
+      done <<< "$tags"
