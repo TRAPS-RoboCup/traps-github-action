@@ -12,70 +12,80 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# イメージ引数設定
-ARG BASE_IMAGE
-
-# プラットフォームとベースのイメージを設定
-FROM ${BASE_IMAGE}
-
-# ワークスペスのディレクトリ名と必須aptパッケージの名前
+# builder
+FROM  ros:humble-ros-base@sha256:5417e56962ff6e15d4cf9b2f78a71a78f3901f47cd78696b575b7eecdb54eb78 AS builder
 ARG ROS_DISTRO="humble"
-ARG PRE_IMPORT_SCRIPT=""
-ARG GIT_REMOTE_URL
-ARG GIT_SHA
-ARG POST_IMPORT_SCRIPT=""
-ARG GIT_CLONE_OPTIONS="--depth 1 --recurse-submodules"
-ARG REPOS_FILES="*.repos"
-ARG WORKSPACE_DIR="/root/ros2_ws"
-ARG INSTALL_DIR="${WORKSPACE_DIR}/install"
-ARG ENTRYPOINT_FILE="ros_ws_entrypoint.sh"
-ARG PRE_BUILD_SCRIPT=""
-ARG BUILD_OPTIONS="--cmake-args -DCMAKE_BUILD_TYPE=Release --install-base ${INSTALL_DIR}"
-ARG POST_BUILD_SCRIPT="rm -rf ./log ./build ./src"
-
-# 設定されたワークスペースに移動
-WORKDIR ${WORKSPACE_DIR}
 
 # ユーザー設定
 USER root
 
+# 設定されたワークスペースに移動
+WORKDIR /root/ros2_ws
+
+# ROSの依存関係のインストール
+RUN apt-get update
+RUN rosdep update --rosdistro ${ROS_DISTRO}
+
+# 依存関係のインストール
+RUN --mount=type=bind,source=./src,target=/root/ros2_ws/src \
+  rosdep install \
+    --from-paths src \
+    -iy \
+    --rosdistro ${ROS_DISTRO} \
+    -t build \
+    -t buildtool \
+    -t buildtool_export \
+    -t build_export
+
+# ビルド
+FROM builder AS build-cache
+ARG ROS_DISTRO="humble"
+
+# ビルド
+RUN --mount=type=bind,source=./src,target=/root/ros2_ws/src <<EOF
+  . /opt/ros/${ROS_DISTRO}/setup.sh
+  colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+EOF
+
+# serice
+FROM  ros:humble-ros-core@sha256:4cbeac7831833f8d6fa4cb1f9f8e22c188853468e76b3d5b9cc58148a8c8f64b AS srv
+
+# ワークスペスのディレクトリ名と必須aptパッケージの名前
+ARG INSTALL_DIR="/root/ros2_ws/install"
+
 # bashrcの設定
 RUN echo "source ${INSTALL_DIR}/setup.bash" >> ~/.bashrc
 
-# ws_entry_point.shのコピー
-COPY ${ENTRYPOINT_FILE} /ros_ws_entrypoint.sh
-
-# ビルドとgitの設定の実行
+# ws_entry_point.shを作成
 RUN <<EOF
+  echo "#!/bin/bash" > /ros_ws_entrypoint.sh
+  echo "set -e" >> /ros_ws_entrypoint.sh
+  echo "source ${INSTALL_DIR}/setup.bash" >> /ros_ws_entrypoint.sh
+  echo "exec \"\$@\"" >> /ros_ws_entrypoint.sh
+  chmod +x /ros_ws_entrypoint.sh
+EOF
+
+# builderからビルドされたアプリケーションをコピー
+COPY --from=build-cache /root/ros2_ws/install ${INSTALL_DIR}
+
+# 依存関係のインストール
+RUN <<EOF
+  # 失敗時にエラーを出す
   set -e
 
-  # git clone 
-  mkdir -p src/$(basename -s .git ${GIT_REMOTE_URL})
-  cd src/$(basename -s .git ${GIT_REMOTE_URL})
-  git init
-  git remote add origin ${GIT_REMOTE_URL}
-  git fetch --depth 1 origin ${GIT_SHA}
-  git checkout FETCH_HEAD
-  cd ${WORKSPACE_DIR}
+  # rosdepのinstall
+  apt-get update
+  apt-get install -y --no-install-recommends python3-rosdep2
 
-  # vcs import
-  for REPOS_FILE in src/*/${REPOS_FILES}; do
-    if [ ! -f ${REPOS_FILE} ]; then continue; fi
-    vcs import src < "${REPOS_FILE}"
-  done
+  # rosdepの更新
+  rosdep update --rosdistro ${ROS_DISTRO}
 
-  # post import script
-  ${POST_IMPORT_SCRIPT}
-
-  # ビルド前のスクリプト
-  ${PRE_BUILD_SCRIPT}
-
-  # ビルド
-  . /opt/ros/${ROS_DISTRO}/setup.sh
-  colcon build ${BUILD_OPTIONS}
-
-  # ビルド後のスクリプト
-  ${POST_BUILD_SCRIPT}
+  # ワークスペースの依存関係のインストール
+  rosdep install \
+    --from-paths ${INSTALL_DIR} \
+    -iy \
+    --rosdistro ${ROS_DISTRO} \
+    -t exec
 EOF
 
 # 実行前に行われる操作
