@@ -96,5 +96,5 @@ runs:
       tags: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.tags || steps.set-docker-metadata.outputs.tags }}
       labels: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.labels || steps.set-docker-metadata.outputs.labels }}
       platforms: ${{ inputs.platforms }}
-      cache-from: type=registry,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ env.ref_sanitized }}
-      cache-to: type=registry,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ env.ref_sanitized }},mode=max
+      cache-from: type=gha,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ env.ref_sanitized }}${{ inputs.tag_suffix }}
+      cache-to: type=gha,ref=ghcr.io/${{ env.repository_lowercase }}/buildcache:${{ env.ref_sanitized }}${{ inputs.tag_suffix }},mode=max
