@@ -59,12 +59,17 @@ runs:
         ghcr.io/${{ github.repository }}/executor
         ghcr.io/${{ github.repository }}
 
+  - name: Set up Docker Buildx
+    id: set-docker-builder
+    uses: docker/setup-buildx-action@v3
+
   - name: Build and push (${{ inputs.target }})
     uses: docker/build-push-action@v5
     with:
       target: ${{ inputs.target }}
       context: ${{ github.workspace }}
       file: ${{ github.action_path }}/Dockerfile
+      builder: ${{ steps.set-docker-builder.outputs.name }}
       push: ${{ inputs.push }}
       tags: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.tags || steps.set-docker-metadata.outputs.tags }}
       labels: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.labels || steps.set-docker-metadata.outputs.labels }}
