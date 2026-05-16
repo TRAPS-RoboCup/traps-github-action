@@ -47,7 +47,7 @@ runs:
   
   - name: Extract metadata (tags, labels) for Docker (executor)
     if : ${{ inputs.target == 'executor' }}
-    id: set-docker-metadata
+    id: set-docker-metadata-executor
     uses: docker/metadata-action@v5
     with:
       images: |
@@ -61,7 +61,7 @@ runs:
       context: ${{ github.workspace }}
       file: ${{ github.action_path }}/Dockerfile
       push: ${{ inputs.push }}
-      tags: ${{ steps.set-docker-metadata.outputs.tags }}
-      labels: ${{ steps.set-docker-metadata.outputs.labels }}
+      tags: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.tags || steps.set-docker-metadata.outputs.tags }}
+      labels: ${{ inputs.target == 'executor' && steps.set-docker-metadata-executor.outputs.labels || steps.set-docker-metadata.outputs.labels }}
       cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/buildcache:${{ github.ref }}
       cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/buildcache:${{ github.ref }},mode=max
