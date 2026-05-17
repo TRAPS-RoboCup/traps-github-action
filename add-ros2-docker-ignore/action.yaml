@@ -28,6 +28,6 @@ runs:
     shell: bash
     working-directory: ${{ inputs.working-directory }}
     run: |
-      echo doc >> .dockerignore
-      echo ".*" >> .dockerignore
-      echo README.md >> .dockerignore
+      echo "**/doc" >> .dockerignore
+      echo "**/.*" >> .dockerignore
+      echo "**/README.md" >> .dockerignore
