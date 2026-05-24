@@ -70,7 +70,7 @@ EOF
 COPY --from=build-cache /root/ros2_ws/install ${INSTALL_DIR}
 
 # 依存関係のインストール
-RUN <<EOF
+RUN --mount=type=bind,source=./src,target=/root/ros2_ws/src <<EOF
   # 失敗時にエラーを出す
   set -e
 
@@ -83,10 +83,17 @@ RUN <<EOF
 
   # ワークスペースの依存関係のインストール
   rosdep install \
-    --from-paths ${INSTALL_DIR} \
+    --from-paths /root/ros2_ws/src \
     -iy \
     --rosdistro ${ROS_DISTRO} \
     -t exec
+
+  # remove rosdep
+  apt-get purge -y --autoremove python3-rosdep2
+
+  # remove apt cache
+  apt-get clean
+  rm -rf /var/lib/apt/lists/*
 EOF
 
 # 実行前に行われる操作
